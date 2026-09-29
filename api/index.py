@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 
 from project_registry import build_task, load_registry, projects_by_id
 from render_issue import render_issue
@@ -12,6 +13,14 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_REGISTRY = ROOT / "projects.json"
 
 app = FastAPI(title="ai-os-projects HTTP API", version="1")
+
+
+def _authorize(authorization: str | None) -> None:
+    token = os.getenv("AIOS_SERVICE_TOKEN")
+    if not token:
+        raise HTTPException(status_code=503, detail="AIOS_SERVICE_TOKEN is not configured")
+    if authorization != f"Bearer {token}":
+        raise HTTPException(status_code=401, detail="unauthorized")
 
 
 def _projects() -> dict[str, dict[str, Any]]:
@@ -24,12 +33,19 @@ def health() -> dict[str, Any]:
 
 
 @app.get("/api/projects")
-def list_projects() -> dict[str, Any]:
+def list_projects(
+    authorization: str | None = Header(default=None),
+) -> dict[str, Any]:
+    _authorize(authorization)
     return {"projects": list(_projects().values())}
 
 
 @app.post("/api/projects/resolve")
-def resolve_project(payload: dict[str, Any]) -> dict[str, Any]:
+def resolve_project(
+    payload: dict[str, Any],
+    authorization: str | None = Header(default=None),
+) -> dict[str, Any]:
+    _authorize(authorization)
     try:
         projects = _projects()
         project_id = payload.get("project_id")
@@ -50,7 +66,11 @@ def resolve_project(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 @app.post("/api/projects/task")
-def project_task(payload: dict[str, Any]) -> dict[str, Any]:
+def project_task(
+    payload: dict[str, Any],
+    authorization: str | None = Header(default=None),
+) -> dict[str, Any]:
+    _authorize(authorization)
     try:
         project = _projects()[str(payload["project_id"])]
         objective = str(payload["objective"])
