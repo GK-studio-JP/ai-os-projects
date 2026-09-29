@@ -1,0 +1,40 @@
+{
+  "schema": "ai-os-project-registry:v1",
+  "projects": [
+    {
+      "schema": "ai-os-project:v1",
+      "project_id": "apocalyptic-march",
+      "name": "Apocalyptic March",
+      "repository": "GK-studio-JP/music-transcription-kb",
+      "root_path": "projects/apocalyptic-march/",
+      "process": "PROC-MUSIC",
+      "status": "active",
+      "refs": [
+        {
+          "type": "current_state",
+          "path": "docs/HANDOFF.md"
+        },
+        {
+          "type": "decisions",
+          "path": "docs/DECISIONS.md"
+        },
+        {
+          "type": "project",
+          "path": "projects/apocalyptic-march/"
+        },
+        {
+          "type": "knowledge",
+          "path": "knowledge/"
+        },
+        {
+          "type": "playbook",
+          "path": "playbooks/"
+        },
+        {
+          "type": "knowledge_policy",
+          "path": "docs/RAG_RULES.md"
+        }
+      ]
+    }
+  ]
+}
