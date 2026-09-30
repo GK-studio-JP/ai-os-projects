@@ -3,48 +3,123 @@ import argparse
 import json
 from pathlib import Path
 
+REGISTRY_SCHEMAS = {"ai-os-project-registry:v1", "ai-os-project-registry:v2"}
+
 
 def load_registry(path):
     data = json.loads(Path(path).read_text(encoding="utf-8"))
-    if data.get("schema") != "ai-os-project-registry:v1":
+    if data.get("schema") not in REGISTRY_SCHEMAS:
         raise ValueError("unsupported registry schema")
     return data
+
+
+def project_repositories(project):
+    repositories = project.get("repositories")
+    if repositories is None:
+        repository = project.get("repository")
+        if not isinstance(repository, str) or not repository.strip():
+            raise ValueError("project missing repository")
+        return [repository]
+
+    if (
+        not isinstance(repositories, list)
+        or not repositories
+        or any(not isinstance(item, str) or not item.strip() for item in repositories)
+    ):
+        raise ValueError("project repositories must be a non-empty string list")
+
+    result = []
+    for repository in repositories:
+        if repository not in result:
+            result.append(repository)
+
+    canonical = project.get("canonical_repository")
+    if not isinstance(canonical, str) or not canonical.strip():
+        raise ValueError("multi-repo project missing canonical_repository")
+    if canonical not in result:
+        raise ValueError("canonical_repository must be included in repositories")
+    return result
+
+
+def canonical_repository(project):
+    value = project.get("canonical_repository") or project.get("repository")
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("project missing canonical repository")
+    return value
+
+
+def validate_project(project):
+    for key in ("project_id", "name", "process"):
+        value = project.get(key)
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"project missing {key}")
+
+    repositories = project_repositories(project)
+    canonical = canonical_repository(project)
+    if canonical not in repositories:
+        raise ValueError("canonical repository is not registered")
+
+    for ref in project.get("refs", []):
+        if not isinstance(ref, dict):
+            raise ValueError("project ref must be an object")
+        path = ref.get("path")
+        if not isinstance(path, str) or not path.strip():
+            raise ValueError("project ref missing path")
+        ref_repository = ref.get("repository")
+        if ref_repository is not None:
+            if ref_repository not in repositories:
+                raise ValueError(f"project ref repository is not registered: {ref_repository}")
+            if ref_repository != canonical:
+                raise ValueError("cross-repository context refs are not supported in registry v2")
 
 
 def projects_by_id(data):
     result = {}
     for project in data.get("projects", []):
-        project_id = project.get("project_id")
-        if not project_id:
-            raise ValueError("project missing project_id")
+        validate_project(project)
+        project_id = project["project_id"]
         if project_id in result:
             raise ValueError(f"duplicate project_id: {project_id}")
         result[project_id] = project
     return result
 
 
-def build_task(project, objective):
-    if not objective.strip():
+def _context_ref(project, ref):
+    repository = ref.get("repository")
+    if repository is not None and repository != canonical_repository(project):
+        raise ValueError("cross-repository context refs are not supported in registry v2")
+    return f"path:{ref['path']}"
+
+
+def build_task(project, objective, target_repository=None):
+    if not isinstance(objective, str) or not objective.strip():
         raise ValueError("objective must not be empty")
-    if not project.get("repository") or not project.get("process"):
-        raise ValueError("project missing repository or process")
-    refs = []
-    for ref in project.get("refs", []):
-        path = ref.get("path")
-        if not path:
-            raise ValueError("project ref missing path")
-        refs.append(f"path:{path}")
+
+    repositories = project_repositories(project)
+    target = target_repository or canonical_repository(project)
+    if target not in repositories:
+        raise ValueError(f"target repository is not registered for project: {target}")
+
+    refs = [_context_ref(project, ref) for ref in project.get("refs", [])]
     return {
         "schema": "ai-os-task:v1",
         "process": project["process"],
-        "repository": project["repository"],
+        "repository": target,
         "objective": objective.strip(),
         "context_refs": refs,
         "project": {
             "project_id": project["project_id"],
             "name": project["name"],
+            "canonical_repository": canonical_repository(project),
+            "repositories": repositories,
         },
     }
+
+
+def project_matches(project, query):
+    q = query.casefold()
+    values = [project["project_id"], project["name"], *project_repositories(project)]
+    return any(q in value.casefold() for value in values)
 
 
 def main():
@@ -59,6 +134,7 @@ def main():
     task_p = sub.add_parser("task")
     task_p.add_argument("--project-id", required=True)
     task_p.add_argument("--objective", required=True)
+    task_p.add_argument("--target-repository")
     args = parser.parse_args()
 
     data = load_registry(args.registry)
@@ -69,15 +145,13 @@ def main():
     elif args.command == "get":
         output = projects[args.project_id]
     elif args.command == "find":
-        q = args.query.casefold()
-        output = [
-            p for p in projects.values()
-            if q in p["project_id"].casefold()
-            or q in p["name"].casefold()
-            or q in p["repository"].casefold()
-        ]
+        output = [p for p in projects.values() if project_matches(p, args.query)]
     else:
-        output = build_task(projects[args.project_id], args.objective)
+        output = build_task(
+            projects[args.project_id],
+            args.objective,
+            target_repository=args.target_repository,
+        )
 
     print(json.dumps(output, ensure_ascii=False, indent=2, sort_keys=True))
 
