@@ -52,7 +52,7 @@
         "GK-studio-JP/browser-agent"
       ],
       "root_path": "projects/aios-v1-hardening/",
-      "process": "PROC-RUNTIME-BROWSER-WORKER",
+      "process": "PROC-AIOS",
       "status": "active",
       "refs": [
         {
