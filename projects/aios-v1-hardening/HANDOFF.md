@@ -10,15 +10,17 @@ Use AIOS itself to drive the final hardening work required for v1.0 while preser
 
 ## Current phase
 
-Bootstrap / dogfooding.
+Phase 2 — Orchestrator propagation / dogfooding.
 
 ## Current state
 
-- Project registry v2 adds backward-compatible multi-repository project registration.
-- Per-task target repository routing is supported.
+- Project registry v2 provides backward-compatible multi-repository project registration.
+- Per-task `target_repository` routing is supported.
 - Project context refs remain canonical-repository `path:` references.
-- The bootstrap executor is `PROC-RUNTIME-BROWSER-WORKER` until a dedicated `PROC-AIOS` is established.
+- `PROC-AIOS` is registered in Kernel with `explicit-repository-allowlist` routing across the eight AIOS hardening repositories.
+- `PROC-AIOS` mutation authority is limited to branch/PR repository mutation.
+- `ai-os-projects` PR #1 and `ai-os-kernel` PR #7 are merged.
 
 ## Next action
 
-Create the first AIOS task targeting `GK-studio-JP/ai-os-kernel` to establish dedicated AIOS self-development routing and register missing AIOS service repositories.
+Create the first post-bootstrap AIOS task targeting `GK-studio-JP/ai-os-api` to carry the selected target repository and project process end to end through the production orchestration path.
