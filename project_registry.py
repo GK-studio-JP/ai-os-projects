@@ -66,8 +66,11 @@ def validate_project(project):
         if not isinstance(path, str) or not path.strip():
             raise ValueError("project ref missing path")
         ref_repository = ref.get("repository")
-        if ref_repository is not None and ref_repository not in repositories:
-            raise ValueError(f"project ref repository is not registered: {ref_repository}")
+        if ref_repository is not None:
+            if ref_repository not in repositories:
+                raise ValueError(f"project ref repository is not registered: {ref_repository}")
+            if ref_repository != canonical:
+                raise ValueError("cross-repository context refs are not supported in registry v2")
 
 
 def projects_by_id(data):
@@ -82,15 +85,10 @@ def projects_by_id(data):
 
 
 def _context_ref(project, ref):
-    path = ref["path"]
-    repositories = project_repositories(project)
-    if len(repositories) == 1 and not project.get("canonical_repository"):
-        return f"path:{path}"
-
-    repository = ref.get("repository") or canonical_repository(project)
-    if repository not in repositories:
-        raise ValueError(f"project ref repository is not registered: {repository}")
-    return f"repo:{repository}:path:{path}"
+    repository = ref.get("repository")
+    if repository is not None and repository != canonical_repository(project):
+        raise ValueError("cross-repository context refs are not supported in registry v2")
+    return f"path:{ref['path']}"
 
 
 def build_task(project, objective, target_repository=None):
