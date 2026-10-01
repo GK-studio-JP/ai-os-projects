@@ -15,3 +15,9 @@ Use `PROC-RUNTIME-BROWSER-WORKER` only as the bootstrap executor because it alre
 ## D-004 Mutation policy
 
 Repository mutation remains branch + PR only. No direct main commits.
+
+## D-005 Normal ChatGPT is the canonical AIOS host
+
+AIOS must be usable directly from ordinary ChatGPT conversations. ChatGPT Work, Codex, the desktop app, local CLIs, and other specialized execution surfaces may be optional implementation, debugging, or acceleration tools, but they must not become prerequisites or the only supported entry point for AIOS.
+
+New AIOS orchestration and mutation capabilities must expose a normal-ChatGPT-callable plugin, MCP, or connected-app path. A feature that works only from Work or Codex is incomplete until the normal-chat bridge exists.
