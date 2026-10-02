@@ -9,7 +9,7 @@ Project ID: `aios-nightly-dream`
 
 Run one delayed, cross-task memory-consolidation cycle each night without adding a timer daemon.
 
-ChatGPT Automation is the clock and launcher only. It performs authenticated read-only source acquisition through the connected GitHub app, materializes the snapshot, starts the dedicated Nightly Dream Gemini runner through Remote Desktop Commander, and verifies the resulting canonical state. It must not append CLAIM/HEARTBEAT/PROGRESS/HANDOFF/RESULT itself and must not perform Dream synthesis.
+ChatGPT Automation is the clock and trigger only. Its sole production action is to create the fixed local trigger file on the authorized Browser Agent VM through Remote Desktop Commander, then stop. It must not read or write Dream GitHub state, reconstruct source history, call Gemini directly, append CLAIM/HEARTBEAT/PROGRESS/HANDOFF/RESULT, or perform Dream synthesis.
 
 The dedicated Nightly Dream runner owns Dream coordination writes through Browser Agent and uses Gemini for salience triage and deep synthesis. GitHub remains canonical for project state, work-event history, Dream Run state, and long-term Memory. Chat history and model memory are never authoritative inputs.
 
@@ -110,19 +110,16 @@ Use normal `ai-bb:v1` CLAIM/HEARTBEAT/HANDOFF/RESULT semantics inside each Dream
 
 Read canonical GitHub state and build the Phase 2 Dream source bundle for `(window_start, window_end]`. Preserve settling exclusions, canonical timeline, final replay state, corrections, RESULT/REVIEW evidence, and source fingerprints.
 
-Production source acquisition is split from execution:
+Production source acquisition is owned by the dedicated runner, not by scheduled ChatGPT:
 
-1. The scheduled ChatGPT launcher uses the connected GitHub application's raw REST fetch capability in read-only mode for `ai-bulletin-board` issue and issue-comment JSON.
-2. Preserve GitHub's original `created_at`, `updated_at`, `closed_at`, `author_association`, comment `id`, and comment `body` fields.
-3. Include Control Issue #52, every open Dream Run, the latest successful Dream Run needed to recover the watermark, and every source issue required for the resolved window.
-4. Materialize the fetched histories as `aios-dream-histories:v1` on the authorized production VM.
-5. Start the dedicated `nightly_dream_runner.py` with that snapshot and the persistent Browser Agent session.
-6. The runner builds the deterministic Phase 2 bundle offline with `ai-os-context` code and owns all subsequent Dream mutations through Browser Agent.
-7. After runner completion, the scheduled launcher may perform authenticated read-only verification of Control #52 and the Dream Run Issue. It must not repair failed writes itself.
+1. The runner lists canonical `ai-bulletin-board` Issues and resolves Control #52, every open Dream Run, and the most recent successful Dream Run needed for watermark recovery.
+2. It fetches complete raw issue-comment histories for those control records and verifies each Issue's declared comment count against the fetched rows.
+3. It resolves the fixed Dream window.
+4. It then lists only Issues updated since `window_start` and fetches each selected Issue's complete raw comment history.
+5. Missing canonical timestamps, malformed rows, incomplete pagination, comment-count mismatches, rate-limit responses, or other source errors fail closed before Dream analysis.
+6. The runner builds the deterministic Phase 2 bundle from these complete histories and owns all subsequent Dream mutations through Browser Agent.
 
-The scheduled production path must not use `ai-os-context dream-bundle`, because that command constructs the live `GitHubClient()` and may fall back to anonymous REST. It also must not use a normalized issue-comment connector response as replay input when canonical timestamps are absent.
-
-If authenticated source acquisition fails, do not start the runner. If the runner detects a malformed/incomplete snapshot or deterministic bundle failure after acquiring a lease, it records HANDOFF/RELEASE itself and does not call Gemini, publish, or advance the watermark.
+The scheduled production path does not materialize `aios-dream-histories:v1` itself and does not call `ai-os-context dream-bundle`. The launcher supplies only the trigger.
 
 Also load deferred candidates from the latest successful Dream cycle. Deferred candidates are analysis carryover, not Memory.
 
@@ -238,7 +235,9 @@ Never create a new generation merely to escape an unfinished older cycle.
 
 The installed ChatGPT Automation must execute this instruction on every run:
 
-> Launch one AIOS Nightly Dream production cycle. Read the current canonical `projects/aios-nightly-dream/AUTOMATION_RUNBOOK.md` and `DREAM_CONTRACT.md`. Do not perform Dream synthesis and do not mutate GitHub. Use the connected GitHub app only for authenticated raw REST reads needed to materialize one complete `aios-dream-histories:v1` snapshot containing Control #52, open Dream Runs, the latest successful Dream Run, and all source issues/comments required by the Dream window. Then use Remote Desktop Commander to materialize that snapshot on the authorized production VM and start the dedicated `nightly_dream_runner.py` against persistent Browser Agent session `gcp-browser-1`. The runner, not ChatGPT Automation, owns CLAIM/HEARTBEAT/HANDOFF/RESULT/RELEASE writes and uses Gemini for salience triage and deep synthesis. After the runner exits, use authenticated read-only GitHub fetches only to verify the canonical outcome. Do not repair or substitute runner writes from the scheduled GPT. Do not enable a new window if an older Dream Run remains incomplete.
+> Use Remote Desktop Commander on authorized device `instance-20260926-031048`. In `/home/raku0220/browser-agent`, create or replace `tasks/aios-nightly-dream.trigger` with a small JSON object containing `schema: aios-nightly-dream-trigger:v1`, `source: chatgpt-automation`, and the current UTC request timestamp. Do not call GitHub, Supabase, Vercel, Browser Agent, or Gemini directly. Do not reconstruct Dream source histories, acquire Control #52, create/resume Dream Runs, perform synthesis, or write canonical state. After the trigger file is written successfully, stop.
+
+The persistent `browser-agent.service` consumes the trigger and launches the dedicated runner in self-source mode. The runner owns source acquisition, Control #52, Dream Run lifecycle, Gemini calls, canonical write verification, and failure recovery.
 
 ## Security and authority
 
