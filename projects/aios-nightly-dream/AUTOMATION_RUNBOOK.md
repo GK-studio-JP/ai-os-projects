@@ -1,7 +1,7 @@
-# AIOS Nightly Dream — ChatGPT Automation
+# AIOS Nightly Dream — Scheduled Trigger + Gemini Runner
 
 Status: active
-Contract: `aios-dream-automation:v1`
+Contract: `aios-dream-automation:v2`
 Status date: 2026-10-02
 Project ID: `aios-nightly-dream`
 
@@ -9,7 +9,9 @@ Project ID: `aios-nightly-dream`
 
 Run one delayed, cross-task memory-consolidation cycle each night without adding a timer daemon.
 
-ChatGPT Automation is the clock and deep Dream executor. GitHub remains canonical for project state, work-event history, Dream Run state, and long-term Memory. The automation must reconstruct state from canonical sources on every run; chat history and model memory are never authoritative inputs.
+ChatGPT Automation is the clock and launcher only. It performs authenticated read-only source acquisition through the connected GitHub app, materializes the snapshot, starts the dedicated Nightly Dream Gemini runner through Remote Desktop Commander, and verifies the resulting canonical state. It must not append CLAIM/HEARTBEAT/PROGRESS/HANDOFF/RESULT itself and must not perform Dream synthesis.
+
+The dedicated Nightly Dream runner owns Dream coordination writes through Browser Agent and uses Gemini for salience triage and deep synthesis. GitHub remains canonical for project state, work-event history, Dream Run state, and long-term Memory. Chat history and model memory are never authoritative inputs.
 
 ## Production schedule
 
@@ -27,7 +29,7 @@ The actual automation may execute within the platform's flexible scheduling wind
 
 1. Gemini salience triage: `aios-dream-triage-capsule:v1` -> `aios-dream-triage-result:v1`.
 2. Nightly source reconstruction: `aios-dream-source-bundle:v1`.
-3. ChatGPT dry-run synthesis: `aios-dream-report:v1` / `aios-dream-proposal:v1`.
+3. Gemini deep synthesis: `aios-dream-report:v1` / `aios-dream-proposal:v1`.
 4. Global Memory publish gate: `aios-memory-publish-request:v1` -> `aios-memory-publish-plan:v1`.
 5. Canonical work journal: `ai-bulletin-board`.
 6. Canonical Global Memory: `ai-os-memory`.
@@ -48,7 +50,7 @@ The Issue body contains a normal `ai-os-task:v1` task envelope plus this immutab
 {
   "schema": "aios-dream-run:v1",
   "cycle_id": "sha256:<hex>",
-  "contract_version": 1,
+  "contract_version": 2,
   "window_start": "<ISO-8601>",
   "window_end": "<ISO-8601>",
   "settle_delay_seconds": 3600,
@@ -87,7 +89,7 @@ Before touching any Dream Run Issue:
 2. If it is `history_unsafe`, abort the cycle without creating or mutating a Dream Run.
 3. If another live owner holds the control lease, do not create a competing generation.
 4. If open, append a CLAIM using an attempt-scoped idempotency key and immediately refetch/replay.
-5. Continue only when the Control Issue shows this automation as the live winning owner.
+5. Continue only when the Control Issue shows the dedicated Nightly Dream runner as the live winning owner.
 6. Renew the control lease with HEARTBEAT before 900 seconds elapse during a long cycle.
 7. RELEASE the Control Issue after either successful completion or a safely recorded failure/handoff. Never append RESULT to the permanent Control Issue.
 
@@ -108,18 +110,19 @@ Use normal `ai-bb:v1` CLAIM/HEARTBEAT/HANDOFF/RESULT semantics inside each Dream
 
 Read canonical GitHub state and build the Phase 2 Dream source bundle for `(window_start, window_end]`. Preserve settling exclusions, canonical timeline, final replay state, corrections, RESULT/REVIEW evidence, and source fingerprints.
 
-Production source acquisition is mandatory:
+Production source acquisition is split from execution:
 
-1. Use the connected GitHub application's raw REST fetch capability for `ai-bulletin-board` issue and issue-comment JSON.
+1. The scheduled ChatGPT launcher uses the connected GitHub application's raw REST fetch capability in read-only mode for `ai-bulletin-board` issue and issue-comment JSON.
 2. Preserve GitHub's original `created_at`, `updated_at`, `closed_at`, `author_association`, comment `id`, and comment `body` fields.
-3. For discovery, list issues with `state=all` and `since=<window_start>`, paginating at `per_page=100` until the final partial page.
-4. For every selected issue, fetch its complete comment history through the raw comments REST endpoint, also paginating to completion.
-5. Materialize the fetched histories as `aios-dream-histories:v1`.
-6. Run `ai-os-context` offline with `dream-bundle-files`; that deterministic output is the Phase 2 Dream source bundle.
+3. Include Control Issue #52, every open Dream Run, the latest successful Dream Run needed to recover the watermark, and every source issue required for the resolved window.
+4. Materialize the fetched histories as `aios-dream-histories:v1` on the authorized production VM.
+5. Start the dedicated `nightly_dream_runner.py` with that snapshot and the persistent Browser Agent session.
+6. The runner builds the deterministic Phase 2 bundle offline with `ai-os-context` code and owns all subsequent Dream mutations through Browser Agent.
+7. After runner completion, the scheduled launcher may perform authenticated read-only verification of Control #52 and the Dream Run Issue. It must not repair failed writes itself.
 
 The scheduled production path must not use `ai-os-context dream-bundle`, because that command constructs the live `GitHubClient()` and may fall back to anonymous REST. It also must not use a normalized issue-comment connector response as replay input when canonical timestamps are absent.
 
-If raw REST returns a rate-limit/error response, a page is missing, a canonical timestamp is absent, the snapshot is malformed, or `dream-bundle-files` fails, treat the cycle as source-inconsistent. Record HANDOFF/PROGRESS, do not call Gemini, do not perform deep synthesis or publishing, do not advance the watermark, and RELEASE Control #52.
+If authenticated source acquisition fails, do not start the runner. If the runner detects a malformed/incomplete snapshot or deterministic bundle failure after acquiring a lease, it records HANDOFF/RELEASE itself and does not call Gemini, publish, or advance the watermark.
 
 Also load deferred candidates from the latest successful Dream cycle. Deferred candidates are analysis carryover, not Memory.
 
@@ -135,11 +138,11 @@ Gemini only returns the five salience dimensions. AIOS code recomputes the weigh
 
 If Gemini is unavailable, malformed after bounded retry, or cannot be safely reached, do not substitute ChatGPT salience scoring. Persist the item as deferred with reason `gemini_unavailable` and retry in a later Dream cycle.
 
-### 3. ChatGPT deep Dream
+### 3. Gemini deep Dream
 
-Only `deep` items and eligible deferred carryover enter ChatGPT synthesis.
+Only `deep` items and eligible deferred carryover enter Gemini synthesis through the dedicated Nightly Dream runner.
 
-ChatGPT must:
+Gemini must:
 
 - reconstruct final state across tasks;
 - discard superseded intermediate conclusions;
@@ -235,7 +238,7 @@ Never create a new generation merely to escape an unfinished older cycle.
 
 The installed ChatGPT Automation must execute this instruction on every run:
 
-> Execute one AIOS Nightly Dream production cycle using the current canonical `projects/aios-nightly-dream/AUTOMATION_RUNBOOK.md` and `DREAM_CONTRACT.md` from `GK-studio-JP/ai-os-projects`. Reconstruct all state from canonical GitHub/AIOS sources; do not rely on chat history or model memory. Acquire and replay the permanent Dream Control Issue `GK-studio-JP/ai-bulletin-board#52` before creating or resuming any cycle, and renew/release that lease according to the runbook. Resume the oldest incomplete Dream Run before creating a newer one. For canonical source reconstruction, fetch raw `ai-bulletin-board` issue/comment REST JSON through the connected GitHub app, preserve canonical timestamps, materialize `aios-dream-histories:v1`, and run `ai-os-context dream-bundle-files` offline; never use anonymous live `GitHubClient()` for a scheduled Dream. Use the existing unauthenticated Gemini Browser Worker only for salience triage, ChatGPT only for deep synthesis, and deterministic AIOS contracts for source reconstruction and Memory publishing. Persist the Dream cycle summary/deferred state in the Dream Run Issue. Advance the watermark only after a canonical RESULT. If there is no new knowledge, complete a no-op cycle normally. On an unrecoverable partial failure, record HANDOFF/PROGRESS when possible, do not advance the watermark, and release the permanent control lease.
+> Launch one AIOS Nightly Dream production cycle. Read the current canonical `projects/aios-nightly-dream/AUTOMATION_RUNBOOK.md` and `DREAM_CONTRACT.md`. Do not perform Dream synthesis and do not mutate GitHub. Use the connected GitHub app only for authenticated raw REST reads needed to materialize one complete `aios-dream-histories:v1` snapshot containing Control #52, open Dream Runs, the latest successful Dream Run, and all source issues/comments required by the Dream window. Then use Remote Desktop Commander to materialize that snapshot on the authorized production VM and start the dedicated `nightly_dream_runner.py` against persistent Browser Agent session `gcp-browser-1`. The runner, not ChatGPT Automation, owns CLAIM/HEARTBEAT/HANDOFF/RESULT/RELEASE writes and uses Gemini for salience triage and deep synthesis. After the runner exits, use authenticated read-only GitHub fetches only to verify the canonical outcome. Do not repair or substitute runner writes from the scheduled GPT. Do not enable a new window if an older Dream Run remains incomplete.
 
 ## Security and authority
 
@@ -244,4 +247,5 @@ The installed ChatGPT Automation must execute this instruction on every run:
 - Dream may learn operational knowledge; it does not self-modify AIOS authority.
 - GitHub canonical evidence outranks model output.
 - Gemini scoring is routing input, not fact.
-- ChatGPT synthesis is a proposal, not canonical truth.
+- Gemini deep synthesis is a proposal, not canonical truth.
+- ChatGPT Automation is a launcher/monitor and has no Dream mutation role.
