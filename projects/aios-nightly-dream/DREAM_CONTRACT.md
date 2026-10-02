@@ -1,4 +1,4 @@
-# AIOS Nightly Dream Contract v1
+# AIOS Nightly Dream Contract v2
 
 Status: active production contract
 Status date: 2026-10-02
@@ -9,14 +9,15 @@ Turn verified AIOS work experience into durable operational knowledge after a da
 
 ## Execution roles
 
-- **Nightly trigger / deep worker:** ChatGPT Automation.
-- **Salience triage:** existing unauthenticated Gemini Web path in `ai-os-runtime-browser-worker`.
+- **Nightly clock / trigger only:** ChatGPT Automation.
+- **Dedicated execution entry:** `ai-os-runtime-browser-worker/nightly_dream_runner.py`, launched by the persistent `browser-agent.service` after a local trigger file is observed.
+- **Salience triage / deep Dream / Memory drafting:** Gemini Web through the dedicated Nightly Dream runner.
 - **Canonical journal:** `GK-studio-JP/ai-bulletin-board`.
 - **Global canonical memory:** `GK-studio-JP/ai-os-memory`.
 - **Project canonical memory:** each project's own canonical repository.
 - **Deterministic authority:** AIOS Kernel/runtime policy, repository permissions, evidence checks, and write allow-lists.
 
-Gemini and ChatGPT produce analysis/proposals. They do not gain authority from model output.
+Gemini produces analysis/proposals. ChatGPT Automation only requests runner startup and does not perform Dream analysis or canonical GitHub writes. Neither model gains authority from model output.
 
 ## Dream window
 
@@ -207,8 +208,9 @@ Nightly Dream does not infer or persist psychological traits, emotional weightin
 ```text
 daytime experience
   -> canonical work journal
-  -> Gemini salience triage
-  -> ChatGPT cross-task Dream
+  -> scheduled ChatGPT trigger only
+  -> dedicated Gemini Dream runner
+  -> Gemini salience triage / cross-task Dream
   -> deterministic publish gate
   -> canonical Global/Project Memory
   -> reindex and verification
