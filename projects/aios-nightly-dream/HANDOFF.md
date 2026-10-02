@@ -17,12 +17,12 @@ Phase 5 — Hardening.
 - Phase 0: project registration and `PROC-AIOS` repository authority are complete. `ai-os-memory` and `ai-bulletin-board` are explicit targets without adding Kernel capabilities.
 - Phase 1: existing unauthenticated Gemini Web is the salience-triage provider. AIOS recomputes salience/routing deterministically; Gemini has no canonical write authority.
 - Phase 2: `ai-os-context` provides deterministic nightly source bundles and non-authoritative ChatGPT dry-run report validation.
-- Phase 3: `ai-os-memory` provides the Memory publish gate, branch/PR-only writes, automatic main-push exact/FTS refresh without embeddings, and explicit workflow-dispatch vector rebuild.
+- Phase 3: `ai-os-memory` provides the Memory publish gate, branch/PR-only writes, automatic main-push exact/FTS refresh without embeddings, and explicit workflow-dispatch vector rebuild.\n- Phase 4: production cycle #53 completed from authenticated raw GitHub snapshots with canonical cycle state + RESULT; the first watermark advance path is verified. Production Gemini triage was then hardened through #57/#59/#60 and verified against the canonical completed #54 capsule.
 - Phase 4: production ChatGPT Automation is enabled at the nominal 02:00 Asia/Tokyo schedule; the first production Dream Run `GK-studio-JP/ai-bulletin-board#53` completed with canonical cycle state and RESULT. Authenticated offline source reconstruction was repaired by #54, and production Gemini current-page/fill/completion hardening was completed by #57, #59, and #60.
 
 ## Production execution
 
-- ChatGPT Automation is the nightly clock and deep Dream executor; no timer daemon is introduced.
+- ChatGPT Automation is the nightly clock and deep Dream executor; no timer daemon is introduced. The production Automation is enabled.
 - Canonical execution contract: `projects/aios-nightly-dream/AUTOMATION_RUNBOOK.md`.
 - Timezone: `Asia/Tokyo`.
 - Nominal schedule: nightly at 02:00 with flexible scheduling.
