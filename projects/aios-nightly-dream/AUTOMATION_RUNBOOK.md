@@ -1,250 +1,126 @@
-# AIOS Nightly Dream — Scheduled Trigger + Gemini Runner
+# AIOS Nightly Dream — Scheduled AIOS Knowledge Maintenance
 
-Status: active
+Status: active test/revalidation
 Contract: `aios-dream-automation:v2`
-Status date: 2026-10-02
+Status date: 2026-10-03
 Project ID: `aios-nightly-dream`
+Canonical task: `GK-studio-JP/ai-bulletin-board#66`
 
 ## Purpose
 
-Run one delayed, cross-task memory-consolidation cycle each night without adding a timer daemon.
+At the end of each day, collect the day's canonical AIOS work across tasks, classify durable knowledge by AIOS storage boundary, publish it to the correct canonical source, refresh the RAG projection/index, verify retrieval, and leave a resumable canonical cycle result for the next run.
 
-ChatGPT Automation is the clock and trigger only. Its sole production action is to create the fixed local trigger file on the authorized Browser Agent VM through Remote Desktop Commander, then stop. It must not read or write Dream GitHub state, reconstruct source history, call Gemini directly, append CLAIM/HEARTBEAT/PROGRESS/HANDOFF/RESULT, or perform Dream synthesis.
+## Execution model
 
-The dedicated Nightly Dream runner owns Dream coordination writes through Browser Agent and uses Gemini for salience triage and deep synthesis. GitHub remains canonical for project state, work-event history, Dream Run state, and long-term Memory. Chat history and model memory are never authoritative inputs.
+The scheduled ChatGPT turn is the recurring AIOS entrypoint. On every run it reads task #66 plus this runbook and `DREAM_CONTRACT.md`, then executes the cycle directly through connected AIOS integrations.
 
-## Production schedule
+Preferred integrations:
 
-- timezone: `Asia/Tokyo`
-- cadence: daily
-- nominal run time: `02:00`
-- scheduling mode: flexible nightly execution
-- settle delay: `3600` seconds
-- effective source window end: automation start minus settle delay
-- bootstrap watermark: `2026-10-02T00:00:00+09:00`
+- GitHub for canonical task history, project repositories, Global Memory source, branches, PRs, and Dream cycle state.
+- Supabase for RAG/projection state and retrieval verification.
+- Other connected structured APIs only when their canonical operational state is required.
 
-The actual automation may execute within the platform's flexible scheduling window. The source window is derived from canonical timestamps, never from an assumed exact trigger second.
+Browser Agent, Remote Desktop Commander, Gemini, shell launchers, and dedicated browser runners are not prerequisites. Use Browser Agent only when a concrete required operation cannot be completed reliably through a structured integration.
 
-## Existing contracts used
+## Schedule
 
-1. Gemini salience triage: `aios-dream-triage-capsule:v1` -> `aios-dream-triage-result:v1`.
-2. Nightly source reconstruction: `aios-dream-source-bundle:v1`.
-3. Gemini deep synthesis: `aios-dream-report:v1` / `aios-dream-proposal:v1`.
-4. Global Memory publish gate: `aios-memory-publish-request:v1` -> `aios-memory-publish-plan:v1`.
-5. Canonical work journal: `ai-bulletin-board`.
-6. Canonical Global Memory: `ai-os-memory`.
+Production target is daily at 02:00 Asia/Tokyo with a 3600-second settle delay.
 
-## Dream Run identity
+During acceptance, do not wait for the daily schedule. Run the cycle directly from an interactive ChatGPT turn and use near-term one-shot scheduled runs only to validate unattended dispatch. After acceptance, restore the normal daily schedule.
 
-Each cycle has exactly one GitHub Issue in `GK-studio-JP/ai-bulletin-board`.
-
-Title:
+## Window and watermark
 
 ```text
-[AIOS][aios-nightly-dream-run] <cycle-id>
+window_start = previous successful Dream window_end
+window_end   = cycle start - settle delay
+source range = (window_start, window_end]
 ```
 
-The Issue body contains a normal `ai-os-task:v1` task envelope plus this immutable metadata block:
+Bootstrap watermark: `2026-10-02T00:00:00+09:00`.
 
-```json
-{
-  "schema": "aios-dream-run:v1",
-  "cycle_id": "sha256:<hex>",
-  "contract_version": 2,
-  "window_start": "<ISO-8601>",
-  "window_end": "<ISO-8601>",
-  "settle_delay_seconds": 3600,
-  "previous_success_issue": 0,
-  "previous_success_window_end": "<ISO-8601 or null>"
-}
-```
+A successful watermark exists only when the Dream Run contains both an `aios-dream-cycle:v1` record with `status=completed` and a canonical `ai-bb:v1` RESULT for the same cycle. Partial/failed runs never advance the watermark.
 
-`cycle_id` is the SHA-256 of the canonical string:
+## Coordination
 
-```text
-aios-nightly-dream:v1|<window_start>|<window_end>
-```
+Permanent serialization task: `GK-studio-JP/ai-bulletin-board#52`.
 
-The same window therefore always resolves to the same cycle identity.
+Use the GitHub integration directly to replay #52, acquire a CLAIM, verify the live owner, and RELEASE after success or safe failure. Resume the oldest incomplete Dream Run before starting a newer window. Retries use the same cycle identity and do not skip unfinished work.
 
-## Watermark rule
+## Cycle
 
-Determine `window_start` from the most recent successfully completed Dream Run. A run is successful only when:
+### 1. Collect canonical work
 
-- its Dream Run Issue contains a canonical RESULT event;
-- it contains one `aios-dream-cycle:v1` state record with `status=completed`;
-- that state record is bound to the same `cycle_id` and `window_end`.
+Read `ai-bulletin-board` through authenticated GitHub access. For tasks changed in the source window, fetch the Issue body and complete canonical comment history. Preserve timestamps, IDs, final state, corrections, RESULT/REVIEW evidence, repository refs, and source fingerprints.
 
-If there is no previous successful run, use the bootstrap watermark above.
+Exclude Dream control/cycle coordination from knowledge candidates. Fail closed on incomplete history or malformed canonical evidence.
 
-Never advance the watermark for a failed, interrupted, partially published, or otherwise incomplete cycle.
+### 2. Classify durable knowledge
 
-## Single-generation lock
+Each candidate is classified into one destination:
 
-Permanent control task: `GK-studio-JP/ai-bulletin-board#52`.
+- `global`: reusable across projects — AIOS architecture, shared tools, infrastructure facts, reusable workflows, troubleshooting, conventions, or cross-project lessons.
+- `project`: project-specific requirements, decisions, designs, progress, deliverables, and domain knowledge.
+- `event_only`: task ownership/progress/result facts that belong only in the bulletin-board journal.
 
-Before touching any Dream Run Issue:
+Project-specific content must not be copied into Global Memory.
 
-1. Fetch Control Issue #52 and replay the canonical `ai-bb:v1` history.
-2. If it is `history_unsafe`, abort the cycle without creating or mutating a Dream Run.
-3. If another live owner holds the control lease, do not create a competing generation.
-4. If open, append a CLAIM using an attempt-scoped idempotency key and immediately refetch/replay.
-5. Continue only when the Control Issue shows the dedicated Nightly Dream runner as the live winning owner.
-6. Renew the control lease with HEARTBEAT before 900 seconds elapse during a long cycle.
-7. RELEASE the Control Issue after either successful completion or a safely recorded failure/handoff. Never append RESULT to the permanent Control Issue.
+### 3. Reconcile
 
-After the control lease is acquired:
+Before writing:
 
-1. Search open Dream Run Issues.
-2. If an Issue with the same `cycle_id` exists, resume it instead of creating another.
-3. If any older Dream Run Issue is still open, resume the oldest incomplete run before starting a newer window.
-4. Create a new Issue only when no incomplete Dream Run exists.
+1. search the relevant RAG/projection for duplicates, updates, conflicts, and superseded knowledge;
+2. page into the canonical GitHub source when exact current state matters;
+3. reject secrets, credentials, cookies, tokens, transient browser state, unsupported inference, and unresolved contradictions;
+4. prefer `noop` or `supersede` over duplicate knowledge.
 
-This two-level rule prevents duplicate creation races and prevents a later window from skipping an unfinished earlier cycle.
+### 4. Publish canonical source first
 
-Use normal `ai-bb:v1` CLAIM/HEARTBEAT/HANDOFF/RESULT semantics inside each Dream Run Issue. Reclaims after lease expiry use a new attempt-scoped idempotency key. RESULT uses one stable cycle-scoped idempotency key.
+Global knowledge goes to `GK-studio-JP/ai-os-memory` using branch + PR. Project knowledge goes to the relevant project's canonical repository using its branch/PR authority. Event-only findings remain on `ai-bulletin-board`.
 
-## Cycle procedure
+Supabase is a rebuildable projection, never the canonical source.
 
-### 1. Reconstruct the source window
+### 5. Reindex and verify
 
-Read canonical GitHub state and build the Phase 2 Dream source bundle for `(window_start, window_end]`. Preserve settling exclusions, canonical timeline, final replay state, corrections, RESULT/REVIEW evidence, and source fingerprints.
+After a canonical merge:
 
-Production source acquisition is owned by the dedicated runner, not by scheduled ChatGPT:
+1. verify the automatic main-push exact/FTS projection refresh;
+2. verify exact/FTS retrieval in Supabase;
+3. run the approved vector rebuild path when changed knowledge must be semantically searchable;
+4. verify a paraphrased/semantic lookup after vectorization;
+5. do not call the cycle successful while a required projection/index remains stale.
 
-1. The runner lists canonical `ai-bulletin-board` Issues and resolves Control #52, every open Dream Run, and the most recent successful Dream Run needed for watermark recovery.
-2. It fetches complete raw issue-comment histories for those control records and verifies each Issue's declared comment count against the fetched rows.
-3. It resolves the fixed Dream window.
-4. It then lists only Issues updated since `window_start` and fetches each selected Issue's complete raw comment history.
-5. Missing canonical timestamps, malformed rows, incomplete pagination, comment-count mismatches, rate-limit responses, or other source errors fail closed before Dream analysis.
-6. The runner builds the deterministic Phase 2 bundle from these complete histories and owns all subsequent Dream mutations through Browser Agent.
+Use precise status language: Global Memory registered, FTS indexed, Vectorized, Hybrid verified.
 
-The scheduled production path does not materialize `aios-dream-histories:v1` itself and does not call `ai-os-context dream-bundle`. The launcher supplies only the trigger.
+### 6. Persist cycle result
 
-Also load deferred candidates from the latest successful Dream cycle. Deferred candidates are analysis carryover, not Memory.
+Record `aios-dream-cycle:v1` with the cycle/window, tasks scanned, classification counts, decisions, canonical PRs/commits, index verification, and deferred items.
 
-### 2. Salience triage
+On complete success, append canonical RESULT, close the Dream Run, and RELEASE #52. A no-new-knowledge cycle may still succeed if source collection and index state are valid.
 
-For each Phase 1 triage capsule:
+## Failure/retry
 
-- `history_unsafe` -> deterministic skip;
-- unsettled/unverified work -> deterministic defer;
-- verified completed work -> use the existing unauthenticated Gemini Browser Worker path.
+On partial failure:
 
-Gemini only returns the five salience dimensions. AIOS code recomputes the weighted score and `skip/defer/deep` routing.
-
-If Gemini is unavailable, malformed after bounded retry, or cannot be safely reached, do not substitute ChatGPT salience scoring. Persist the item as deferred with reason `gemini_unavailable` and retry in a later Dream cycle.
-
-### 3. Gemini deep Dream
-
-Only `deep` items and eligible deferred carryover enter Gemini synthesis through the dedicated Nightly Dream runner.
-
-Gemini must:
-
-- reconstruct final state across tasks;
-- discard superseded intermediate conclusions;
-- compare repeated successes/failures;
-- reconcile against existing Global/Project Memory;
-- emit only `promote/noop/defer/reject/supersede`;
-- classify scope as `global/project/event_only`;
-- require evidence for promote/supersede;
-- require at least three source tasks for a promoted pattern unless a stronger canonical rule already establishes the fact;
-- avoid psychological inference.
-
-The output remains a non-authoritative `aios-dream-report:v1`.
-
-### 4. Publish gate
-
-For Global `promote/supersede` proposals, construct a Memory publish request and run the Phase 3 gate.
-
-Only a valid `aios-memory-publish-plan:v1` may produce a repository change.
-
-Rules:
-
-- branch + PR only;
-- no direct canonical write;
-- initial Dream targets are limited to `knowledge/lessons/**.md` and `knowledge/troubleshooting/**.md`;
-- reject secrets, path traversal, unknown evidence, unsafe sources, and scope violations;
-- main-push exact/FTS projection refresh is automatic and embedding-free;
-- full vector rebuild remains explicit `workflow_dispatch`.
-
-If a Memory PR cannot be fully validated/merged during the cycle, persist that proposal as deferred with reason `publish_pending`; do not silently treat it as canonical Memory.
-
-Project-scope proposals stay in the relevant project repository and must obey that repository's branch/PR authority. Event-only proposals are never published to Memory.
-
-### 5. Persist cycle state
-
-Append one trusted GitHub comment containing:
-
-```json
-{
-  "schema": "aios-dream-cycle:v1",
-  "cycle_id": "sha256:<hex>",
-  "status": "completed",
-  "window_start": "<ISO-8601>",
-  "window_end": "<ISO-8601>",
-  "bundle_fingerprint": "sha256:<hex>",
-  "counts": {
-    "selected": 0,
-    "triage_skip": 0,
-    "triage_defer": 0,
-    "triage_deep": 0,
-    "promote": 0,
-    "noop": 0,
-    "defer": 0,
-    "reject": 0,
-    "supersede": 0
-  },
-  "deferred": [],
-  "memory_prs": [],
-  "project_prs": []
-}
-```
-
-Each deferred entry must carry enough provenance to retry without turning it into Memory:
-
-- proposal/candidate identifier;
-- source task(s);
-- source fingerprint(s);
-- reason;
-- last evaluated cycle;
-- relevant evidence refs.
-
-Do not store secrets or raw transient browser contents.
-
-Then append the canonical `ai-bb:v1` RESULT event and close the Dream Run Issue.
-
-## Successful no-op cycles
-
-A cycle with no promotable knowledge may still complete successfully. It must still persist its cycle summary and deferred carryover, append RESULT, and advance the watermark to `window_end`.
-
-## Failure and retry
-
-On an unrecoverable cycle failure:
-
-- do not append RESULT;
-- do not close the Dream Run Issue;
+- no RESULT;
+- do not close the Dream Run;
 - do not advance the watermark;
-- append PROGRESS or HANDOFF with the failure boundary and next action when possible;
-- allow the lease to be reclaimed;
-- the next automation run resumes the same `cycle_id`.
+- record PROGRESS/HANDOFF with exact failure boundary and next action;
+- RELEASE #52 when safe;
+- resume the same cycle next time.
 
-Never create a new generation merely to escape an unfinished older cycle.
+## Scheduled task prompt
 
-## Automation prompt
+> Use AIOS to read and execute `GK-studio-JP/ai-bulletin-board#66`. Read the current Nightly Dream runbook and contract at run time. Execute through connected structured integrations, preferring GitHub and Supabase. Browser Agent, Remote Desktop, Gemini, shell launchers, and dedicated browser runners are optional fallbacks only. Preserve resumable canonical state on partial failure.
 
-The installed ChatGPT Automation must execute this instruction on every run:
+## Success invariant
 
-> Use Remote Desktop Commander on authorized device `instance-20260926-031048`. In `/home/raku0220/browser-agent`, create or replace `tasks/aios-nightly-dream.trigger` with a small JSON object containing `schema: aios-nightly-dream-trigger:v1`, `source: chatgpt-automation`, and the current UTC request timestamp. Do not call GitHub, Supabase, Vercel, Browser Agent, or Gemini directly. Do not reconstruct Dream source histories, acquire Control #52, create/resume Dream Runs, perform synthesis, or write canonical state. After the trigger file is written successfully, stop.
-
-The persistent `browser-agent.service` consumes the trigger and launches the dedicated runner in self-source mode. The runner owns source acquisition, Control #52, Dream Run lifecycle, Gemini calls, canonical write verification, and failure recovery.
-
-## Security and authority
-
-- Never expose or persist secret values.
-- Never use Dream to modify runtime/code/config outside explicitly allowed project or Memory paths.
-- Dream may learn operational knowledge; it does not self-modify AIOS authority.
-- GitHub canonical evidence outranks model output.
-- Gemini scoring is routing input, not fact.
-- Gemini deep synthesis is a proposal, not canonical truth.
-- ChatGPT Automation is a launcher/monitor and has no Dream mutation role.
+```text
+daytime canonical work
+  -> scheduled GPT AIOS entrypoint
+  -> authenticated structured collection
+  -> global/project/event-only classification
+  -> canonical source write
+  -> RAG reindex/vectorization
+  -> exact + semantic retrieval verification
+  -> canonical cycle result
+```
