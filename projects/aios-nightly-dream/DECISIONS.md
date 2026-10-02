@@ -8,7 +8,7 @@ Project identity, design, roadmap, and handoff are canonical in `GK-studio-JP/ai
 
 ## D-002 — Nightly execution
 
-Use ChatGPT Automation only as the nightly clock/launcher. It may perform authenticated read-only snapshot acquisition and start/verify the dedicated Nightly Dream runner, but it does not own Dream mutations or synthesis. Do not introduce a new timer daemon solely for Dream scheduling.
+Use ChatGPT Automation only as the nightly clock/trigger. It writes one fixed local trigger file through Remote Desktop Commander and stops. Source acquisition, Dream mutations, synthesis, and outcome verification belong to the dedicated runner. Do not introduce a second timer daemon solely for Dream scheduling.
 
 ## D-003 — Gemini salience triage
 
