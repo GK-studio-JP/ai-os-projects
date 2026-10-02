@@ -21,10 +21,10 @@ Phase 3 — Production E2E evidence / continuous dogfooding.
 - Browser Agent PR #308 is merged as `67bb3aca2260f1b015e01b60757ce1c190be4ce5`. A successful `goto()` navigation is now preserved when only the immediate Light observation times out; the command returns an explicit deferred Light observation with `retrySuggested:true` instead of discarding the navigated page.
 - Browser Agent regression suites and all three PR #308 CI workflows passed. The production VM repository is synchronized to `main@67bb3aca`, the `browser-agent` systemd service restarted on that main, and a live production `goto` to `ai-os-projects` PR #6 completed with a normal Light observation and no fatal recovery.
 - Task #42 remains open only for final production GitHub-flow evidence using the fixed Browser Agent.
-- Task #41 remains open because its original target, `ai-os-projects` PR #5, was closed without merge and cannot satisfy the acceptance literally. A fresh HANDOFF PR must be merged through the production Browser Agent and recorded explicitly as superseding evidence; do not claim PR #5 merged.
+- Task #41 remains open because its original target, `ai-os-projects` PR #5, was closed without merge and cannot satisfy the acceptance literally. `ai-os-projects` PR #7 is the explicit superseding HANDOFF artifact and must be merged through the production Browser Agent; do not claim PR #5 merged.
 
 ## Next action
 
-1. Open a fresh HANDOFF PR from the current canonical state.
-2. Use the production Browser Agent relay to observe and merge that PR through GitHub UI, then verify the resulting HANDOFF on `main`.
-3. Record the fresh PR as superseding production evidence for #42 and #41, close those tasks if the live flow succeeds, and clean up merged or accidental branches.
+1. Use the production Browser Agent relay to observe and merge `ai-os-projects` PR #7 through GitHub UI.
+2. Verify the resulting HANDOFF on `main` and record Browser Agent command timing, heartbeat, session state, and errors as the final production evidence for #42 and #41.
+3. Record PR #7 as superseding production evidence, close #42 and #41 if the live flow succeeds, and clean up merged or accidental branches.
