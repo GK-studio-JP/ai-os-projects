@@ -15,16 +15,16 @@ Phase 3 — Production E2E evidence / continuous dogfooding.
 ## Current state
 
 - Project registry v2, per-task `target_repository` routing, canonical-repository `path:` context refs, and dedicated `PROC-AIOS` routing are operational.
-- AIOS hardening tasks #32 through #40 are completed; #44 is also completed.
-- Production Browser Agent main is verified at `86165f7b21b1cc47c5f6751d4e093d40baffb2ff`; the production VM repository matches main and the `browser-agent` service is active.
-- Browser Agent hardening through PR #307 includes Deep continuation/actionability, cold-start budgeting, page-first observation recovery, bounded full recovery, bounded Deep detail work, recovery launch-budget separation, and stale Chromium singleton cleanup.
-- Task #43 remains open. Current `browser-agent` main still implements `goto()` as navigation followed by an immediate Light observation; when navigation succeeds but that post-navigation Light observation times out, `goto()` does not yet return the deferred Light result already used by `start()`.
-- Task #42 remains open pending final production GitHub-flow verification after the remaining `goto()` observation behavior is fixed.
-- Task #41 remains open, but its original target `ai-os-projects` PR #5 is closed without merge and its branch has been removed. The old PR can no longer satisfy the task literally; a fresh HANDOFF PR is required and must be treated as superseding evidence rather than silently assuming PR #5 merged.
-- The previous HANDOFF next action to create the first post-bootstrap `ai-os-api` task is obsolete; that orchestration propagation work has already been exercised by the completed hardening tasks.
+- AIOS hardening tasks #32 through #40, #43, and #44 are completed. Tasks #41 and #42 remain open for the final production GitHub-flow evidence.
+- Global Memory search uses the canonical eight-argument RPC `public.aios_memory_search(text,text,integer,text[],text[],text[],text[],extensions.vector)`. The live Supabase signature and `ai-os-memory/db/001_memory_search.sql` agree; the earlier nine-argument failure was a caller assembly error, not a database signature migration.
+- `ai-os-memory` PR #6 documents the eight-argument search contract and the `pg_proc` signature check on main. The AIOS normal-chat plugin is updated to v0.2.4 with typed eight-argument retrieval and the same failure diagnostic.
+- Browser Agent PR #308 is merged as `67bb3aca2260f1b015e01b60757ce1c190be4ce5`. A successful `goto()` navigation is now preserved when only the immediate Light observation times out; the command returns an explicit deferred Light observation with `retrySuggested:true` instead of discarding the navigated page.
+- Browser Agent regression suites and all three PR #308 CI workflows passed. The production VM repository is synchronized to `main@67bb3aca`, the `browser-agent` systemd service restarted on that main, and a live production `goto` to `ai-os-projects` PR #6 completed with a normal Light observation and no fatal recovery.
+- Task #42 remains open only for final production GitHub-flow evidence using the fixed Browser Agent.
+- Task #41 remains open because its original target, `ai-os-projects` PR #5, was closed without merge and cannot satisfy the acceptance literally. A fresh HANDOFF PR must be merged through the production Browser Agent and recorded explicitly as superseding evidence; do not claim PR #5 merged.
 
 ## Next action
 
-1. Finish #43 by preserving a successful `goto()` navigation when only the post-navigation Light observation times out, returning an explicit deferred Light observation and adding regression coverage.
-2. Retry the production GitHub flow and complete #42 once navigation/observation no longer discards a successfully navigated page.
-3. Use a fresh HANDOFF PR as the replacement production artifact for #41, record the supersession explicitly in the Bulletin Board, verify the merged HANDOFF on `main`, and only then decide whether #41 can be closed or requires a replacement task because PR #5 is no longer mergeable.
+1. Open a fresh HANDOFF PR from the current canonical state.
+2. Use the production Browser Agent relay to observe and merge that PR through GitHub UI, then verify the resulting HANDOFF on `main`.
+3. Record the fresh PR as superseding production evidence for #42 and #41, close those tasks if the live flow succeeds, and clean up merged or accidental branches.
