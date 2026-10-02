@@ -27,7 +27,7 @@ Exit: existing Gemini Web can triage canonical work experience with no Gemini AP
 - define Dream Run window, settling delay, watermark, and source discovery
 - replay canonical bulletin-board histories
 - collect immutable evidence and reconstruct final state
-- perform ChatGPT cross-task synthesis, existing-memory reconciliation, and pattern detection
+- perform Gemini cross-task synthesis, existing-memory reconciliation, and pattern detection
 - emit structured promote/noop/defer/reject/supersede proposals
 - generate a deterministic cycle summary without canonical writes
 
@@ -44,17 +44,20 @@ Exit: a nightly dry run produces an auditable Dream Report.
 
 Exit: a verified candidate can safely become canonical operational memory.
 
-## Phase 4 — ChatGPT Automation production
+## Phase 4 — Scheduled production
 
-Status: completed 2026-10-02.
+Status: revalidation in progress 2026-10-02.
 
-- install the Nightly Dream scheduled automation
+- keep ChatGPT Automation as clock/launcher only
+- route execution to the dedicated Gemini Nightly Dream runner
+- keep the generic Browser Worker route separate
 - enforce one active Dream generation
 - make retries idempotent
 - advance watermark only after complete success
 - persist cycle summary and deferred state
+- pass a real scheduled one-shot E2E before restoring the nominal 02:00 schedule
 
-Exit: daytime experience is consolidated nightly and becomes available to next-day AIOS workers without manual triggering.
+Exit: a scheduled launch completes the full canonical Dream cycle without any scheduled-GPT GitHub mutation.
 
 ## Phase 5 — Hardening
 
@@ -68,4 +71,4 @@ Status: in progress.
 
 ## Final acceptance
 
-`daytime work → canonical journal → Gemini salience triage → ChatGPT deep Dream → deterministic publish gate → canonical Memory → reindex → next-day retrieval` works end to end while preserving AIOS authority and storage boundaries.
+`daytime work → canonical journal → scheduled ChatGPT launcher → dedicated Dream runner → Gemini salience/deep Dream → deterministic publish gate → canonical Memory → reindex → next-day retrieval` works end to end while preserving AIOS authority and storage boundaries.
