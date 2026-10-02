@@ -108,6 +108,19 @@ Use normal `ai-bb:v1` CLAIM/HEARTBEAT/HANDOFF/RESULT semantics inside each Dream
 
 Read canonical GitHub state and build the Phase 2 Dream source bundle for `(window_start, window_end]`. Preserve settling exclusions, canonical timeline, final replay state, corrections, RESULT/REVIEW evidence, and source fingerprints.
 
+Production source acquisition is mandatory:
+
+1. Use the connected GitHub application's raw REST fetch capability for `ai-bulletin-board` issue and issue-comment JSON.
+2. Preserve GitHub's original `created_at`, `updated_at`, `closed_at`, `author_association`, comment `id`, and comment `body` fields.
+3. For discovery, list issues with `state=all` and `since=<window_start>`, paginating at `per_page=100` until the final partial page.
+4. For every selected issue, fetch its complete comment history through the raw comments REST endpoint, also paginating to completion.
+5. Materialize the fetched histories as `aios-dream-histories:v1`.
+6. Run `ai-os-context` offline with `dream-bundle-files`; that deterministic output is the Phase 2 Dream source bundle.
+
+The scheduled production path must not use `ai-os-context dream-bundle`, because that command constructs the live `GitHubClient()` and may fall back to anonymous REST. It also must not use a normalized issue-comment connector response as replay input when canonical timestamps are absent.
+
+If raw REST returns a rate-limit/error response, a page is missing, a canonical timestamp is absent, the snapshot is malformed, or `dream-bundle-files` fails, treat the cycle as source-inconsistent. Record HANDOFF/PROGRESS, do not call Gemini, do not perform deep synthesis or publishing, do not advance the watermark, and RELEASE Control #52.
+
 Also load deferred candidates from the latest successful Dream cycle. Deferred candidates are analysis carryover, not Memory.
 
 ### 2. Salience triage
@@ -222,7 +235,7 @@ Never create a new generation merely to escape an unfinished older cycle.
 
 The installed ChatGPT Automation must execute this instruction on every run:
 
-> Execute one AIOS Nightly Dream production cycle using the current canonical `projects/aios-nightly-dream/AUTOMATION_RUNBOOK.md` and `DREAM_CONTRACT.md` from `GK-studio-JP/ai-os-projects`. Reconstruct all state from canonical GitHub/AIOS sources; do not rely on chat history or model memory. Acquire and replay the permanent Dream Control Issue `GK-studio-JP/ai-bulletin-board#52` before creating or resuming any cycle, and renew/release that lease according to the runbook. Resume the oldest incomplete Dream Run before creating a newer one. Use the existing unauthenticated Gemini Browser Worker only for salience triage, ChatGPT only for deep synthesis, and deterministic AIOS contracts for source reconstruction and Memory publishing. Persist the Dream cycle summary/deferred state in the Dream Run Issue. Advance the watermark only after a canonical RESULT. If there is no new knowledge, complete a no-op cycle normally. On an unrecoverable partial failure, record HANDOFF/PROGRESS when possible, do not advance the watermark, and release the permanent control lease.
+> Execute one AIOS Nightly Dream production cycle using the current canonical `projects/aios-nightly-dream/AUTOMATION_RUNBOOK.md` and `DREAM_CONTRACT.md` from `GK-studio-JP/ai-os-projects`. Reconstruct all state from canonical GitHub/AIOS sources; do not rely on chat history or model memory. Acquire and replay the permanent Dream Control Issue `GK-studio-JP/ai-bulletin-board#52` before creating or resuming any cycle, and renew/release that lease according to the runbook. Resume the oldest incomplete Dream Run before creating a newer one. For canonical source reconstruction, fetch raw `ai-bulletin-board` issue/comment REST JSON through the connected GitHub app, preserve canonical timestamps, materialize `aios-dream-histories:v1`, and run `ai-os-context dream-bundle-files` offline; never use anonymous live `GitHubClient()` for a scheduled Dream. Use the existing unauthenticated Gemini Browser Worker only for salience triage, ChatGPT only for deep synthesis, and deterministic AIOS contracts for source reconstruction and Memory publishing. Persist the Dream cycle summary/deferred state in the Dream Run Issue. Advance the watermark only after a canonical RESULT. If there is no new knowledge, complete a no-op cycle normally. On an unrecoverable partial failure, record HANDOFF/PROGRESS when possible, do not advance the watermark, and release the permanent control lease.
 
 ## Security and authority
 
