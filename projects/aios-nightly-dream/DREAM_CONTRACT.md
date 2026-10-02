@@ -9,7 +9,7 @@ Turn verified AIOS work experience into durable operational knowledge after a da
 
 ## Execution roles
 
-- **Nightly clock / launcher:** ChatGPT Automation. It performs authenticated read-only snapshot acquisition and starts the dedicated Nightly Dream runner. It does not write Dream coordination state or synthesize Dream proposals.
+- **Nightly clock / trigger:** ChatGPT Automation. It writes one fixed local trigger file on the authorized Browser Agent VM through Remote Desktop Commander and stops. It does not read Dream source state, write coordination state, or synthesize Dream proposals.
 - **Dream worker:** dedicated `nightly_dream_runner.py` path in `ai-os-runtime-browser-worker`. This path is separate from the generic Browser Worker launcher.
 - **Salience triage and deep synthesis:** existing unauthenticated Gemini Web session driven by the dedicated Dream runner.
 - **Canonical mutation transport:** Browser Agent, under deterministic runner policy.
@@ -18,7 +18,7 @@ Turn verified AIOS work experience into durable operational knowledge after a da
 - **Project canonical memory:** each project's own canonical repository.
 - **Deterministic authority:** AIOS Kernel/runtime policy, repository permissions, evidence checks, and write allow-lists.
 
-Gemini produces analysis/proposals. ChatGPT Automation is only the scheduled launcher/monitor. Neither gains authority from model output.
+Gemini produces analysis/proposals. ChatGPT Automation is only the scheduled trigger. Neither gains authority from model output.
 
 ## Dream window
 
