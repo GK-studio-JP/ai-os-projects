@@ -46,6 +46,8 @@ Exit: a verified candidate can safely become canonical operational memory.
 
 ## Phase 4 — ChatGPT Automation production
 
+Status: completed 2026-10-02.
+
 - install the Nightly Dream scheduled automation
 - enforce one active Dream generation
 - make retries idempotent
@@ -55,6 +57,8 @@ Exit: a verified candidate can safely become canonical operational memory.
 Exit: daytime experience is consolidated nightly and becomes available to next-day AIOS workers without manual triggering.
 
 ## Phase 5 — Hardening
+
+Status: in progress.
 
 - add `no_new_evidence` pattern skips
 - configure minimum pattern evidence, default 3

@@ -1,6 +1,6 @@
 # AIOS Nightly Dream Contract v1
 
-Status: draft implementation contract
+Status: active production contract
 Status date: 2026-10-02
 
 ## Purpose
