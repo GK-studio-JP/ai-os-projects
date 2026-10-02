@@ -59,3 +59,21 @@ Production checkpoints:
 ## Next action
 
 Execute Phase 5 hardening: add deterministic `no_new_evidence` pattern skips, recurring quality metrics, memory-health/relation/orphan checks, and recovery coverage for failed runs, late events, conflicts, and repeated cycles. Keep the final acceptance path continuously production-verifiable while hardening each boundary.
+
+
+## 2026-10-02 trigger-path correction
+
+The previous scheduled design was invalid for production because scheduled ChatGPT attempted canonical GitHub writes directly and was blocked before Control #52 CLAIM. The replacement path is intentionally separate from the normal Browser Worker:
+
+```text
+ChatGPT Automation (clock/trigger only)
+  -> Remote Desktop Commander
+  -> /home/raku0220/browser-agent/tasks/aios-nightly-dream.trigger
+  -> persistent browser-agent.service watcher
+  -> scripts/run-aios-nightly-dream.sh
+  -> ai-os-runtime-browser-worker/nightly_dream_runner.py
+  -> Gemini Web + deterministic AIOS validation
+  -> canonical Dream Run / Control #52
+```
+
+Do not enable the daily 02:00 schedule until a real scheduled trigger-only E2E passes. Scheduled ChatGPT must not acquire Control #52, reconstruct source history, perform deep Dream, or write GitHub canonical state.
