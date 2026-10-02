@@ -16,13 +16,15 @@ Phase 5 — Hardening.
 
 - Phase 0: project registration and `PROC-AIOS` repository authority are complete. `ai-os-memory` and `ai-bulletin-board` are explicit targets without adding Kernel capabilities.
 - Phase 1: existing unauthenticated Gemini Web is the salience-triage provider. AIOS recomputes salience/routing deterministically; Gemini has no canonical write authority.
-- Phase 2: `ai-os-context` provides deterministic nightly source bundles and non-authoritative ChatGPT dry-run report validation.
+- Phase 2: `ai-os-context` provides deterministic nightly source bundles and non-authoritative Dream report validation.
 - Phase 3: `ai-os-memory` provides the Memory publish gate, branch/PR-only writes, automatic main-push exact/FTS refresh without embeddings, and explicit workflow-dispatch vector rebuild.
-- Phase 4: production ChatGPT Automation is enabled at the nominal 02:00 Asia/Tokyo schedule; the first production Dream Run `GK-studio-JP/ai-bulletin-board#53` completed with canonical cycle state and RESULT. Authenticated offline source reconstruction was repaired by #54, and production Gemini current-page/fill/completion hardening was completed by #57, #59, and #60.
+- Phase 4: the first production Dream Run `GK-studio-JP/ai-bulletin-board#53` completed with canonical cycle state and RESULT. Authenticated offline source reconstruction was repaired by #54, and production Gemini current-page/fill/completion hardening was completed by #57, #59, and #60. The original scheduled-GPT mutation design was then found to repeat the known scheduled GitHub-write failure and is being replaced by the dedicated Gemini runner path.
 
 ## Production execution
 
-- ChatGPT Automation is the nightly clock and deep Dream executor; no timer daemon is introduced.
+- ChatGPT Automation is the nightly clock/launcher only; no timer daemon is introduced.
+- Dedicated execution entrypoint: `GK-studio-JP/ai-os-runtime-browser-worker/nightly_dream_runner.py`; the generic Browser Worker route remains separate.
+- Dream coordination writes are performed by the dedicated runner through Browser Agent. Gemini performs salience triage and deep synthesis.
 - Canonical execution contract: `projects/aios-nightly-dream/AUTOMATION_RUNBOOK.md`.
 - Timezone: `Asia/Tokyo`.
 - Nominal schedule: nightly at 02:00 with flexible scheduling.
@@ -54,8 +56,8 @@ Production checkpoints:
 - Browser Agent prompt-fill fallback: `#59` — completed.
 - Stable Gemini JSON completion detection: `#60` — completed.
 - Permanent production control: `GK-studio-JP/ai-bulletin-board#52` — intentionally open and reusable.
-- ChatGPT Automation: enabled, nominally 02:00 `Asia/Tokyo` with flexible scheduling.
+- ChatGPT Automation: 02:00 production schedule is currently disabled pending a successful scheduled one-shot E2E of the dedicated Gemini runner path.
 
 ## Next action
 
-Execute Phase 5 hardening: add deterministic `no_new_evidence` pattern skips, recurring quality metrics, memory-health/relation/orphan checks, and recovery coverage for failed runs, late events, conflicts, and repeated cycles. Keep the final acceptance path continuously production-verifiable while hardening each boundary.
+Finish Phase 4 revalidation first: update the private Scheduled Runtime launcher, run a real scheduled one-shot E2E through the dedicated Gemini runner, verify canonical CLAIM → Dream Run → cycle state/RESULT → RELEASE, and only then restore the daily 02:00 schedule. Resume Phase 5 hardening after that acceptance passes.

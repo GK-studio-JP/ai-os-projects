@@ -1,4 +1,4 @@
-# AIOS Nightly Dream Contract v1
+# AIOS Nightly Dream Contract v2
 
 Status: active production contract
 Status date: 2026-10-02
@@ -9,14 +9,16 @@ Turn verified AIOS work experience into durable operational knowledge after a da
 
 ## Execution roles
 
-- **Nightly trigger / deep worker:** ChatGPT Automation.
-- **Salience triage:** existing unauthenticated Gemini Web path in `ai-os-runtime-browser-worker`.
+- **Nightly clock / launcher:** ChatGPT Automation. It performs authenticated read-only snapshot acquisition and starts the dedicated Nightly Dream runner. It does not write Dream coordination state or synthesize Dream proposals.
+- **Dream worker:** dedicated `nightly_dream_runner.py` path in `ai-os-runtime-browser-worker`. This path is separate from the generic Browser Worker launcher.
+- **Salience triage and deep synthesis:** existing unauthenticated Gemini Web session driven by the dedicated Dream runner.
+- **Canonical mutation transport:** Browser Agent, under deterministic runner policy.
 - **Canonical journal:** `GK-studio-JP/ai-bulletin-board`.
 - **Global canonical memory:** `GK-studio-JP/ai-os-memory`.
 - **Project canonical memory:** each project's own canonical repository.
 - **Deterministic authority:** AIOS Kernel/runtime policy, repository permissions, evidence checks, and write allow-lists.
 
-Gemini and ChatGPT produce analysis/proposals. They do not gain authority from model output.
+Gemini produces analysis/proposals. ChatGPT Automation is only the scheduled launcher/monitor. Neither gains authority from model output.
 
 ## Dream window
 
@@ -105,7 +107,7 @@ A changed task history must be re-triaged. Pattern analysis skips when there is 
 
 ## Deep Dream
 
-ChatGPT receives only deep-routed and carried-deferred candidates plus the relevant existing canonical Memory.
+Gemini receives only deep-routed and carried-deferred candidates plus the relevant existing canonical Memory through the dedicated Nightly Dream runner.
 
 Deep Dream performs:
 
@@ -207,8 +209,9 @@ Nightly Dream does not infer or persist psychological traits, emotional weightin
 ```text
 daytime experience
   -> canonical work journal
-  -> Gemini salience triage
-  -> ChatGPT cross-task Dream
+  -> scheduled ChatGPT launcher
+  -> dedicated Nightly Dream runner
+  -> Gemini salience triage + cross-task Dream
   -> deterministic publish gate
   -> canonical Global/Project Memory
   -> reindex and verification

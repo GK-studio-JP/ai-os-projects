@@ -8,7 +8,7 @@ Project identity, design, roadmap, and handoff are canonical in `GK-studio-JP/ai
 
 ## D-002 — Nightly execution
 
-Use ChatGPT Automation as the nightly trigger and deep Dream executor. Do not introduce a new timer daemon solely for Dream scheduling.
+Use ChatGPT Automation only as the nightly clock/launcher. It may perform authenticated read-only snapshot acquisition and start/verify the dedicated Nightly Dream runner, but it does not own Dream mutations or synthesis. Do not introduce a new timer daemon solely for Dream scheduling.
 
 ## D-003 — Gemini salience triage
 
@@ -16,7 +16,7 @@ Use the existing unauthenticated Gemini Web path in `ai-os-runtime-browser-worke
 
 ## D-004 — Deep synthesis
 
-ChatGPT performs cross-task reconstruction, evidence reconciliation, existing-memory comparison, consolidation, and pattern synthesis. Chat history and model memory are not canonical inputs.
+Gemini performs cross-task reconstruction, evidence reconciliation, existing-memory comparison, consolidation, and pattern synthesis through the dedicated Nightly Dream runner. Chat history and model memory are not canonical inputs.
 
 ## D-005 — Storage boundaries
 
@@ -38,6 +38,10 @@ Uncertain, conflicting, incomplete, or insufficiently evidenced candidates are d
 
 Use source-history fingerprints and contract/triage versions to skip unchanged work. Advance the Dream watermark only after a successful cycle.
 
-## D-010 — GBrain adaptations
+## D-010 — Separate execution path
+
+Nightly Dream uses a dedicated `nightly_dream_runner.py` entrypoint. The generic Browser Worker launch path remains separate and is not repurposed as the nightly scheduler path. Shared low-level Browser Agent/Gemini adapters may be reused, but routing, leases, cycle state, and failure handling remain Dream-specific.
+
+## D-011 — GBrain adaptations
 
 Adopt Hot→Cold consolidation, cheap triage before deep synthesis, fingerprint caching, deferred processing, evidence provenance, write allow-lists, pattern evidence thresholds, no-new-evidence skips, dry-run support, cycle summaries, and cycle locking. Do not adopt psychological reflection or emotional weighting.
