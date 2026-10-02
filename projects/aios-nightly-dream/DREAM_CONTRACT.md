@@ -9,8 +9,9 @@ Turn verified AIOS work experience into durable operational knowledge after a da
 
 ## Execution roles
 
-- **Nightly clock / launcher:** ChatGPT Automation. It performs authenticated read-only snapshot acquisition and starts the dedicated Nightly Dream runner. It does not write Dream coordination state or synthesize Dream proposals.
-- **Dream worker:** dedicated `nightly_dream_runner.py` path in `ai-os-runtime-browser-worker`. This path is separate from the generic Browser Worker launcher.
+- **Nightly clock / signal launcher:** ChatGPT Automation. It invokes only the fixed Remote Desktop trigger wrapper on the authorized Browser Agent VM. It does not read GitHub source state, write Dream coordination state, or synthesize Dream proposals.
+- **Trigger bridge:** the persistent Browser Agent service receives the fixed signal, coalesces duplicate launches, and starts the local Gemini bootstrap. The bootstrap may dispatch only the fixed Nightly Dream workflow.
+- **Dream worker:** `nightly-dream-worker.yml` invokes the dedicated `nightly_dream_runner.py` path in `ai-os-runtime-browser-worker`. The workflow supplies authenticated GitHub read credentials and existing Browser Agent relay credentials. This path is separate from the generic Browser Worker launcher.
 - **Salience triage and deep synthesis:** existing unauthenticated Gemini Web session driven by the dedicated Dream runner.
 - **Canonical mutation transport:** Browser Agent, under deterministic runner policy.
 - **Canonical journal:** `GK-studio-JP/ai-bulletin-board`.
@@ -209,7 +210,9 @@ Nightly Dream does not infer or persist psychological traits, emotional weightin
 ```text
 daytime experience
   -> canonical work journal
-  -> scheduled ChatGPT launcher
+  -> scheduled ChatGPT signal
+  -> local Gemini bootstrap
+  -> authenticated Nightly Dream workflow
   -> dedicated Nightly Dream runner
   -> Gemini salience triage + cross-task Dream
   -> deterministic publish gate
