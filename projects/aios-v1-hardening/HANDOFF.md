@@ -1,6 +1,6 @@
 # AIOS v1.0 Hardening
 
-Status: active
+Status: completed
 Project ID: `aios-v1-hardening`
 Canonical repository: `GK-studio-JP/ai-os-projects`
 
@@ -10,21 +10,20 @@ Use AIOS itself to drive the final hardening work required for v1.0 while preser
 
 ## Current phase
 
-Phase 3 — Production E2E evidence / continuous dogfooding.
+Phase 3 — Production E2E evidence / continuous dogfooding — completed.
 
 ## Current state
 
 - Project registry v2, per-task `target_repository` routing, canonical-repository `path:` context refs, and dedicated `PROC-AIOS` routing are operational.
-- AIOS hardening tasks #32 through #40, #43, and #44 are completed. Tasks #41 and #42 remain open for the final production GitHub-flow evidence.
+- AIOS hardening tasks #32 through #44 are completed. Tasks #41 and #42 have final RESULT evidence and are closed.
 - Global Memory search uses the canonical eight-argument RPC `public.aios_memory_search(text,text,integer,text[],text[],text[],text[],extensions.vector)`. The live Supabase signature and `ai-os-memory/db/001_memory_search.sql` agree; the earlier nine-argument failure was a caller assembly error, not a database signature migration.
-- `ai-os-memory` PR #6 documents the eight-argument search contract and the `pg_proc` signature check on main. The AIOS normal-chat plugin is updated to v0.2.4 with typed eight-argument retrieval and the same failure diagnostic.
-- Browser Agent PR #308 is merged as `67bb3aca2260f1b015e01b60757ce1c190be4ce5`. A successful `goto()` navigation is now preserved when only the immediate Light observation times out; the command returns an explicit deferred Light observation with `retrySuggested:true` instead of discarding the navigated page.
-- Browser Agent regression suites and all three PR #308 CI workflows passed. The production VM repository is synchronized to `main@67bb3aca`, the `browser-agent` systemd service restarted on that main, and a live production `goto` to `ai-os-projects` PR #6 completed with a normal Light observation and no fatal recovery.
-- Task #42 remains open only for final production GitHub-flow evidence using the fixed Browser Agent.
-- Task #41 remains open because its original target, `ai-os-projects` PR #5, was closed without merge and cannot satisfy the acceptance literally. `ai-os-projects` PR #7 is the explicit superseding HANDOFF artifact and must be merged through the production Browser Agent; do not claim PR #5 merged.
+- `ai-os-memory` PR #6 documents the eight-argument search contract on main, and the AIOS normal-chat plugin is updated to v0.2.4 with typed eight-argument retrieval and live-signature diagnostics.
+- Browser Agent PR #308 is merged as `67bb3aca2260f1b015e01b60757ce1c190be4ce5`. A successful `goto()` navigation is preserved when only the immediate Light observation times out, returning an explicit deferred Light observation instead of discarding the navigated page.
+- Final production GitHub evidence used `ai-os-projects` PR #7 as the explicit superseding artifact for obsolete PR #5. The production Browser Agent opened PR #7, preserved the page through a transient `Loading merge status` observation, then re-observed `Ready to merge` with all checks passed and no fatal recovery.
+- PR #7 was merged through the production GitHub UI as `f763244074d506374bbe9aef83e1fe06adf8370d`. PR #5 remains closed without merge; no history was rewritten to claim otherwise.
+- The merged PR #7 branch and the remaining merged/stale branches in `ai-os-projects`, `browser-agent`, and `ai-os-memory` were deleted after confirming they were zero commits ahead of main. Those repositories now retain only `main`.
+- The stale historical Browser Agent relay command left in `running` state since 2026-09-29 was closed during cleanup. The production Browser Agent service remains active on the current main.
 
 ## Next action
 
-1. Use the production Browser Agent relay to observe and merge `ai-os-projects` PR #7 through GitHub UI.
-2. Verify the resulting HANDOFF on `main` and record Browser Agent command timing, heartbeat, session state, and errors as the final production evidence for #42 and #41.
-3. Record PR #7 as superseding production evidence, close #42 and #41 if the live flow succeeds, and clean up merged or accidental branches.
+No remaining `aios-v1-hardening` task. Keep this HANDOFF as closure evidence. Future AIOS work should start a new task or project and retain the branch + PR mutation policy.
