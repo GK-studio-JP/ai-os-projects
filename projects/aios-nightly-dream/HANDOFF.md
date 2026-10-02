@@ -22,7 +22,7 @@ Phase 5 — Hardening.
 
 ## Production execution
 
-- ChatGPT Automation is the nightly clock/launcher only; no timer daemon is introduced.
+- ChatGPT Automation is the nightly clock/trigger only; it writes the fixed local trigger file through Remote Desktop Commander and performs no Dream source read or canonical mutation.
 - Dedicated execution entrypoint: `GK-studio-JP/ai-os-runtime-browser-worker/nightly_dream_runner.py`; the generic Browser Worker route remains separate.
 - Dream coordination writes are performed by the dedicated runner through Browser Agent. Gemini performs salience triage and deep synthesis.
 - Canonical execution contract: `projects/aios-nightly-dream/AUTOMATION_RUNBOOK.md`.
@@ -60,4 +60,4 @@ Production checkpoints:
 
 ## Next action
 
-Finish Phase 4 revalidation first: update the private Scheduled Runtime launcher, run a real scheduled one-shot E2E through the dedicated Gemini runner, verify canonical CLAIM → Dream Run → cycle state/RESULT → RELEASE, and only then restore the daily 02:00 schedule. Resume Phase 5 hardening after that acceptance passes.
+Finish Phase 4 revalidation first: deploy the local trigger bridge and self-sourcing dedicated Gemini runner, run a real scheduled one-shot where ChatGPT only writes `tasks/aios-nightly-dream.trigger`, verify canonical CLAIM → Dream Run → cycle state/RESULT → RELEASE, and only then restore the daily 02:00 schedule. Resume Phase 5 hardening after that acceptance passes.
