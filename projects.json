@@ -72,6 +72,46 @@
           "path": "projects/aios-v1-hardening/"
         }
       ]
+    },
+    {
+      "schema": "ai-os-project:v2",
+      "project_id": "aios-nightly-dream",
+      "name": "AIOS Nightly Dream",
+      "canonical_repository": "GK-studio-JP/ai-os-projects",
+      "repositories": [
+        "GK-studio-JP/ai-os-projects",
+        "GK-studio-JP/ai-os-kernel",
+        "GK-studio-JP/ai-os-runtime-browser-worker",
+        "GK-studio-JP/browser-agent",
+        "GK-studio-JP/ai-bulletin-board",
+        "GK-studio-JP/ai-os-memory",
+        "GK-studio-JP/ai-os-context"
+      ],
+      "root_path": "projects/aios-nightly-dream/",
+      "process": "PROC-AIOS",
+      "status": "active",
+      "refs": [
+        {
+          "type": "current_state",
+          "path": "projects/aios-nightly-dream/HANDOFF.md"
+        },
+        {
+          "type": "decisions",
+          "path": "projects/aios-nightly-dream/DECISIONS.md"
+        },
+        {
+          "type": "roadmap",
+          "path": "projects/aios-nightly-dream/ROADMAP.md"
+        },
+        {
+          "type": "design",
+          "path": "projects/aios-nightly-dream/DREAM_CONTRACT.md"
+        },
+        {
+          "type": "project",
+          "path": "projects/aios-nightly-dream/"
+        }
+      ]
     }
   ]
 }
