@@ -79,16 +79,28 @@ Never advance the watermark for a failed, interrupted, partially published, or o
 
 ## Single-generation lock
 
-Before creating a run:
+Permanent control task: `GK-studio-JP/ai-bulletin-board#52`.
+
+Before touching any Dream Run Issue:
+
+1. Fetch Control Issue #52 and replay the canonical `ai-bb:v1` history.
+2. If it is `history_unsafe`, abort the cycle without creating or mutating a Dream Run.
+3. If another live owner holds the control lease, do not create a competing generation.
+4. If open, append a CLAIM using an attempt-scoped idempotency key and immediately refetch/replay.
+5. Continue only when the Control Issue shows this automation as the live winning owner.
+6. Renew the control lease with HEARTBEAT before 900 seconds elapse during a long cycle.
+7. RELEASE the Control Issue after either successful completion or a safely recorded failure/handoff. Never append RESULT to the permanent Control Issue.
+
+After the control lease is acquired:
 
 1. Search open Dream Run Issues.
 2. If an Issue with the same `cycle_id` exists, resume it instead of creating another.
 3. If any older Dream Run Issue is still open, resume the oldest incomplete run before starting a newer window.
 4. Create a new Issue only when no incomplete Dream Run exists.
 
-This is the cycle lock. There may be only one active Dream generation.
+This two-level rule prevents duplicate creation races and prevents a later window from skipping an unfinished earlier cycle.
 
-Use normal `ai-bb:v1` CLAIM/HEARTBEAT/HANDOFF/RESULT semantics inside the Dream Run Issue. Reclaims after lease expiry use a new attempt-scoped idempotency key. RESULT uses one stable cycle-scoped idempotency key.
+Use normal `ai-bb:v1` CLAIM/HEARTBEAT/HANDOFF/RESULT semantics inside each Dream Run Issue. Reclaims after lease expiry use a new attempt-scoped idempotency key. RESULT uses one stable cycle-scoped idempotency key.
 
 ## Cycle procedure
 
@@ -210,7 +222,7 @@ Never create a new generation merely to escape an unfinished older cycle.
 
 The installed ChatGPT Automation must execute this instruction on every run:
 
-> Execute one AIOS Nightly Dream cycle using the current canonical `projects/aios-nightly-dream/AUTOMATION.md` and `DREAM_CONTRACT.md` from `GK-studio-JP/ai-os-projects`. Reconstruct all state from canonical GitHub/AIOS sources; do not rely on chat history or model memory. Resume an incomplete Dream Run before creating a new one. Use the existing unauthenticated Gemini Browser Worker only for salience triage, ChatGPT only for deep synthesis, and deterministic AIOS contracts for source reconstruction and Memory publishing. Persist the Dream cycle summary/deferred state in `ai-bulletin-board`. Advance the watermark only after a canonical RESULT. If there is no new knowledge, complete a no-op cycle normally.
+> Execute one AIOS Nightly Dream production cycle using the current canonical `projects/aios-nightly-dream/AUTOMATION_RUNBOOK.md` and `DREAM_CONTRACT.md` from `GK-studio-JP/ai-os-projects`. Reconstruct all state from canonical GitHub/AIOS sources; do not rely on chat history or model memory. Acquire and replay the permanent Dream Control Issue `GK-studio-JP/ai-bulletin-board#52` before creating or resuming any cycle, and renew/release that lease according to the runbook. Resume the oldest incomplete Dream Run before creating a newer one. Use the existing unauthenticated Gemini Browser Worker only for salience triage, ChatGPT only for deep synthesis, and deterministic AIOS contracts for source reconstruction and Memory publishing. Persist the Dream cycle summary/deferred state in the Dream Run Issue. Advance the watermark only after a canonical RESULT. If there is no new knowledge, complete a no-op cycle normally. On an unrecoverable partial failure, record HANDOFF/PROGRESS when possible, do not advance the watermark, and release the permanent control lease.
 
 ## Security and authority
 
