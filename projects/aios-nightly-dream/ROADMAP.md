@@ -44,17 +44,19 @@ Exit: a nightly dry run produces an auditable Dream Report.
 
 Exit: a verified candidate can safely become canonical operational memory.
 
-## Phase 4 — ChatGPT Automation production
+## Phase 4 — Scheduled trigger + dedicated Gemini production
 
-Status: completed 2026-10-02.
+Status: revalidation in progress 2026-10-02.
 
-- install the Nightly Dream scheduled automation
+- install the trigger-only Nightly Dream scheduled automation
+- route scheduled ChatGPT only to the local VM trigger file
+- launch the separate dedicated Gemini Nightly Dream runner from `browser-agent.service`
 - enforce one active Dream generation
 - make retries idempotent
 - advance watermark only after complete success
 - persist cycle summary and deferred state
 
-Exit: daytime experience is consolidated nightly and becomes available to next-day AIOS workers without manual triggering.
+Exit: a real scheduled trigger-only E2E creates the VM trigger, the dedicated runner acquires Control #52, completes/resumes one Dream cycle, persists canonical RESULT, and only then is the daily 02:00 schedule enabled.
 
 ## Phase 5 — Hardening
 
@@ -68,4 +70,4 @@ Status: in progress.
 
 ## Final acceptance
 
-`daytime work → canonical journal → Gemini salience triage → ChatGPT deep Dream → deterministic publish gate → canonical Memory → reindex → next-day retrieval` works end to end while preserving AIOS authority and storage boundaries.
+`daytime work → canonical journal → scheduled ChatGPT trigger → dedicated Gemini runner → Gemini salience/deep Dream → deterministic publish gate → canonical Memory → reindex → next-day retrieval` works end to end while preserving AIOS authority and storage boundaries.
