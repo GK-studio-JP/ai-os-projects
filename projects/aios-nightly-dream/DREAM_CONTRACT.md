@@ -1,6 +1,6 @@
 # AIOS Nightly Dream Contract v2
 
-Status: active production contract under direct-AIOS revalidation
+Status: active production contract under Work/Direct-AIOS revalidation
 Status date: 2026-10-03
 
 ## Purpose
@@ -9,15 +9,17 @@ Turn verified AIOS work experience into durable knowledge after a settling perio
 
 ## Roles
 
-- Scheduled ChatGPT is the recurring AIOS entrypoint and resumes `ai-bulletin-board#66`.
-- GitHub is the preferred structured integration for canonical task history and repository mutation.
+- Scheduled Work/ChatGPT is the recurring AIOS entrypoint and resumes `ai-bulletin-board#66`.
+- AIOS/ChatGPT is the executor for canonical collection, coordination, publish, and retrieval verification.
+- GitHub is canonical for task history and repository mutation.
 - Supabase is the rebuildable RAG/projection and retrieval-verification layer.
-- Browser Agent is an optional UI fallback only when no reliable structured/API operation exists.
+- Unauthenticated Gemini Web is the independent semantic evaluator for salience triage and deep synthesis.
+- Browser transport is opened lazily for evaluator calls only; it is not the canonical mutation transport.
 - `ai-bulletin-board` is the canonical work-event journal.
 - `ai-os-memory` is canonical Global Memory.
 - Each project repository is canonical for project-specific knowledge.
 
-Remote Desktop, Gemini, shell launchers, and dedicated browser runners do not form a required Nightly Dream execution chain.
+Gemini produces analysis/proposals only. AIOS deterministic policy and repository authority control writes.
 
 ## Source window
 
@@ -31,7 +33,71 @@ The watermark advances only after the full cycle succeeds.
 
 ## Source discovery
 
-Dream reads canonical GitHub task history, not chat/model memory. Each candidate preserves authoritative timestamps, final replay state, corrections, RESULT/REVIEW evidence, artifacts, and a stable source fingerprint. Incomplete or unsafe histories are deferred and cannot be promoted.
+Dream reads canonical GitHub task history, not chat/model memory. Each candidate preserves authoritative timestamps, final replay state, corrections, RESULT/REVIEW evidence, artifacts, and a stable source fingerprint. Incomplete or unsafe histories cannot be promoted.
+
+## Deterministic prefilter
+
+Every candidate first enters a bounded `aios-dream-triage-capsule:v1`.
+
+Before any Gemini/browser call:
+
+- `history_unsafe` -> deterministic `skip`;
+- incomplete/open/claimed -> deterministic `defer`;
+- completed without verification evidence -> deterministic `defer`;
+- unchanged source may reuse an existing triage result only when source fingerprint, triage version, and relevant routing policy version match.
+
+Zero eligible candidates means zero Gemini/browser startup.
+
+## Gemini salience result
+
+Eligible completed/verified candidates are evaluated by unauthenticated Gemini Web.
+
+Gemini returns the five dimensions:
+
+- `operational_impact`
+- `reuse_scope`
+- `novelty`
+- `recurrence`
+- `evidence_strength`
+
+AIOS validates the result and recomputes the weighted score itself. Gemini's own score or decision is never authoritative.
+
+Default routing:
+
+- `salience < 0.35`: `skip`
+- `0.35 <= salience < 0.65`: `defer`
+- `salience >= 0.65`: `deep`
+
+If Gemini is unavailable or malformed after bounded retry, defer with `gemini_unavailable`. ChatGPT/GPT must not silently replace Gemini's salience judgment.
+
+## Evaluator runtime contract
+
+- Start browser transport lazily only after deterministic prefiltering finds at least one eligible candidate.
+- Use at most one Gemini session per Dream cycle.
+- Reuse one current Gemini page for all triage calls and deep synthesis where possible.
+- Do not require `newPage` or `switchPage` when a usable current page exists.
+- Prefer the browser transport available in the scheduled Work runtime when it can produce the required schema-valid result.
+- The existing Browser Agent current-page path is an approved fallback evaluator transport.
+- Evaluator transport failure does not grant GPT permission to self-evaluate; affected candidates remain deferred.
+
+## Deep Dream
+
+Only `deep` candidates and eligible deferred carryover enter Gemini deep synthesis.
+
+Deep synthesis performs:
+
+1. final-state reconstruction;
+2. superseded-conclusion removal;
+3. cross-task comparison;
+4. existing-memory reconciliation;
+5. duplicate/update/contradiction detection;
+6. consolidation and pattern detection;
+7. Global/Project/event-only scope classification;
+8. structured proposal generation.
+
+The output remains non-authoritative and uses `promote|noop|defer|reject|supersede`.
+
+Recurring promoted patterns normally require at least three independent qualifying source tasks unless stronger authoritative evidence establishes the fact directly.
 
 ## Storage boundary
 
@@ -39,23 +105,17 @@ Every durable finding is classified as:
 
 - `global`: reusable cross-project operational knowledge;
 - `project`: project-specific knowledge retained in its project source/RAG;
-- `event-only`: work-event state retained only in the bulletin board.
+- `event_only`: work-event state retained only in the bulletin board.
 
 A finding must not be copied into Global Memory merely because it may be useful later.
 
-## Proposal decisions
-
-Candidates use `promote|noop|defer|reject|supersede`.
-
-Promotion/supersede requires canonical evidence. Secrets, credentials, cookies, tokens, transient browser content, psychological inference, unsupported claims, and unresolved contradictions are excluded.
-
-Recurring patterns normally require at least three independent qualifying experiences unless a stronger authoritative source establishes the fact directly.
-
 ## Publish gate
 
-Before canonical mutation, deterministic validation confirms scope, evidence, target repository/path authority, conflict state, and branch+PR write mode.
+Before canonical mutation, deterministic validation confirms scope, evidence, source-history safety, target repository/path authority, conflict state, secret rejection, and branch+PR write mode.
 
 Global candidates target `ai-os-memory`; project candidates target the relevant project repository; event-only candidates are not written to long-term Memory.
+
+Gemini output, salience, browser success, or a GPT assertion is never sufficient proof by itself.
 
 ## RAG/index contract
 
@@ -77,7 +137,7 @@ Permanent control is `ai-bulletin-board#52`. Only one live generation owns a cyc
 
 ## Cycle result
 
-Each completed cycle records tasks scanned, storage classification counts, proposal decisions, canonical commits/PRs, index status, retrieval verification, and deferred items.
+Each completed cycle records tasks scanned, triage counts, proposal decisions, evaluator status, canonical commits/PRs, index status, retrieval verification, and deferred items.
 
 A successful no-op is valid. A partial failure has no RESULT, does not close the run, does not advance the watermark, and preserves a resumable HANDOFF.
 
@@ -85,9 +145,11 @@ A successful no-op is valid. A partial failure has no RESULT, does not close the
 
 ```text
 canonical daily work
-  -> scheduled AIOS entrypoint
+  -> scheduled Work / AIOS entrypoint
   -> structured source retrieval
-  -> boundary classification
+  -> deterministic prefilter
+  -> lazy Gemini salience + deep synthesis
+  -> deterministic publish gate
   -> canonical Global/Project source
   -> RAG index/vector refresh
   -> retrieval verification
