@@ -124,7 +124,11 @@
       "root_path": ".",
       "process": "PROC-GAME",
       "status": "recovery",
-      "refs": []
+      "refs": [
+        "path:docs/HANDOFF.md",
+        "path:docs/DECISIONS.md",
+        "path:docs/ROADMAP.md"
+      ]
     }
   ]
 }
