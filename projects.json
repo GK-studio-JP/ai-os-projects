@@ -112,6 +112,19 @@
           "path": "projects/aios-nightly-dream/"
         }
       ]
+    },
+    {
+      "schema": "ai-os-project:v2",
+      "project_id": "mygame-1",
+      "name": "MyGame-1",
+      "canonical_repository": "GK-studio-JP/MyGame-1",
+      "repositories": [
+        "GK-studio-JP/MyGame-1"
+      ],
+      "root_path": ".",
+      "process": "PROC-GAME",
+      "status": "recovery",
+      "refs": []
     }
   ]
 }
