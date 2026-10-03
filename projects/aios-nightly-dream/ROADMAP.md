@@ -1,74 +1,83 @@
 # AIOS Nightly Dream — Roadmap
 
 Status: active
-Status date: 2026-10-02
+Status date: 2026-10-03
 
 ## Phase 0 — Bootstrap and authority
 
-- register `aios-nightly-dream` in `ai-os-projects`
-- codify Dream decisions, handoff, roadmap, and execution contract
-- extend `PROC-AIOS.routing.target_repositories` to include `GK-studio-JP/ai-os-memory` and `GK-studio-JP/ai-bulletin-board`
-- do not add new Kernel capabilities
-
-Exit: AIOS can route Nightly Dream implementation tasks to every required repository through existing branch-write authority.
+Complete.
 
 ## Phase 1 — Gemini salience triage
 
-- define the deterministic Triage Capsule built from canonical task history
-- add a structured salience-triage mode to the existing unauthenticated Gemini Browser Worker
-- return 0..1 salience plus operational-impact, reuse-scope, novelty, recurrence, and evidence-strength dimensions
-- add source fingerprint, triage version, threshold routing, defer, and unchanged-source skip
-- cover repeated, corrected, superseded, and incomplete task histories
+Complete, with runtime optimization in progress.
 
-Exit: existing Gemini Web can triage canonical work experience with no Gemini API billing and no canonical write authority.
+- deterministic Triage Capsule from canonical history
+- unauthenticated Gemini Web evaluator
+- five dimensions: operational impact, reuse scope, novelty, recurrence, evidence strength
+- AIOS-side score recomputation and threshold routing
+- source fingerprint/version validation
+- fail-closed defer when Gemini is unavailable
+
+Current optimization: do not start any browser until deterministic prefiltering finds an eligible candidate; reuse one current-page Gemini session for the whole cycle.
 
 ## Phase 2 — Nightly Dream dry run
 
-- define Dream Run window, settling delay, watermark, and source discovery
-- replay canonical bulletin-board histories
-- collect immutable evidence and reconstruct final state
-- perform Gemini cross-task synthesis, existing-memory reconciliation, and pattern detection
-- emit structured promote/noop/defer/reject/supersede proposals
-- generate a deterministic cycle summary without canonical writes
+Core implementation complete.
 
-Exit: a nightly dry run produces an auditable Dream Report.
+- delayed source window and watermark
+- canonical history replay
+- immutable evidence/final-state reconstruction
+- Gemini cross-task synthesis and memory reconciliation
+- `promote|noop|defer|reject|supersede` proposals
+- deterministic non-authoritative Dream Report
+
+Revalidation target: execute this flow from Work/Direct AIOS without making Browser Agent the orchestrator.
 
 ## Phase 3 — Publish gate and Memory integration
 
-- implement deterministic proposal validation
-- enforce Global vs Project vs event-only routing
-- reject secrets, unresolved contradictions, insufficient evidence, and disallowed paths
-- publish allowed changes only through branch + PR
-- reindex Global Memory after canonical merge
-- verify exact and semantic retrieval where available
+Core implementation complete.
 
-Exit: a verified candidate can safely become canonical operational memory.
+- deterministic proposal validation
+- Global/Project/event-only routing
+- secret/conflict/evidence/path checks
+- branch + PR writes only
+- exact/FTS refresh
+- vector rebuild when required
+- exact + semantic retrieval verification
 
-## Phase 4 — Scheduled production
+## Phase 4 — Scheduled Work production
 
-Status: revalidation in progress 2026-10-02.
+Status: revalidation in progress.
 
-- keep ChatGPT Automation as clock/launcher only
-- route execution to the dedicated Gemini Nightly Dream runner
-- keep the generic Browser Worker route separate
-- enforce one active Dream generation
-- make retries idempotent
+- personal Work scheduled task created successfully
+- Work/AIOS is the scheduled executor
+- structured GitHub/Supabase integrations are the normal collection/mutation path
+- Gemini remains the independent evaluator
+- browser transport is evaluator-only and lazy
+- no browser startup on zero-eligible cycles
+- at most one Gemini current-page session per cycle
+- no GPT fallback salience scoring
+- enforce one active Dream generation and idempotent retries
 - advance watermark only after complete success
-- persist cycle summary and deferred state
-- pass a real scheduled one-shot E2E before restoring the nominal 02:00 schedule
+- pass one scheduled evaluator-only E2E and one full no-publish Dream dry run before restoring production cadence
 
-Exit: a scheduled launch completes the full canonical Dream cycle without any scheduled-GPT GitHub mutation.
+Exit: a scheduled Work run completes canonical collection and independent Gemini evaluation without requiring the old RDP/script/browser orchestration chain.
 
 ## Phase 5 — Hardening
 
-Status: in progress.
+Status: active.
 
-- add `no_new_evidence` pattern skips
-- configure minimum pattern evidence, default 3
-- add dry-run/publish modes and quality metrics
-- add memory-health lint, relation/orphan checks, and recovery tests
-- test failed Dream runs, late events, conflicts, and repeated cycles
+- unchanged-source/cache skips
+- minimum recurring pattern evidence: 3
+- dry-run/publish modes and quality metrics
+- memory-health lint and relation/orphan checks
+- failed-run, late-event, conflict, and repeated-cycle recovery tests
+- evaluator/browser startup metrics
+- prove zero-eligible cycles start no browser
+- prove multi-candidate evaluation reuses one session/page
 
 ## Final acceptance
 
-`daytime work → canonical journal → scheduled ChatGPT launcher → dedicated Dream runner → Gemini salience/deep Dream → deterministic publish gate → canonical Memory → reindex → next-day retrieval` works end to end while preserving AIOS authority and storage boundaries.
+`daytime work -> canonical journal -> scheduled Work/AIOS -> deterministic prefilter -> lazy Gemini salience/deep Dream -> deterministic publish gate -> canonical Memory -> reindex -> next-day retrieval`
+
+The design preserves AIOS authority and an independent evaluator while minimizing Browser Agent/Chromium runtime cost.

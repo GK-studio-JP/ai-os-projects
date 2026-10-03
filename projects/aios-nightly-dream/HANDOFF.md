@@ -1,6 +1,7 @@
 # AIOS Nightly Dream
 
 Status: active
+Status date: 2026-10-03
 Project ID: `aios-nightly-dream`
 Canonical repository: `GK-studio-JP/ai-os-projects`
 
@@ -10,31 +11,31 @@ Consolidate AIOS work experience across tasks after a daily settling period and 
 
 ## Current phase
 
-Phase 5 — Hardening.
+Phase 4 revalidation + Phase 5 hardening.
+
+A personal Work scheduled task has been created successfully. The remaining acceptance work is to prove the evaluator and full Dream cycle under the Work/Direct-AIOS execution model.
 
 ## Completed foundation
 
-- Phase 0: project registration and `PROC-AIOS` repository authority are complete. `ai-os-memory` and `ai-bulletin-board` are explicit targets without adding Kernel capabilities.
-- Phase 1: existing unauthenticated Gemini Web is the salience-triage provider. AIOS recomputes salience/routing deterministically; Gemini has no canonical write authority.
-- Phase 2: `ai-os-context` provides deterministic nightly source bundles and non-authoritative Dream report validation.
-- Phase 3: `ai-os-memory` provides the Memory publish gate, branch/PR-only writes, automatic main-push exact/FTS refresh without embeddings, and explicit workflow-dispatch vector rebuild.
-- Phase 4: the first production Dream Run `GK-studio-JP/ai-bulletin-board#53` completed with canonical cycle state and RESULT. Authenticated offline source reconstruction was repaired by #54, and production Gemini current-page/fill/completion hardening was completed by #57, #59, and #60. The original scheduled-GPT mutation design was then found to repeat the known scheduled GitHub-write failure and is being replaced by the dedicated Gemini runner path.
+- Phase 0: project registration and repository authority are complete.
+- Phase 1: unauthenticated Gemini Web salience triage exists; AIOS recomputes salience/routing deterministically and Gemini has no canonical write authority.
+- Phase 2: `ai-os-context` provides deterministic source bundles and non-authoritative Dream report validation.
+- Phase 3: `ai-os-memory` provides the deterministic publish gate, branch/PR-only writes, exact/FTS refresh, explicit vector rebuild, and retrieval verification path.
+- First production Dream Run `ai-bulletin-board#53` completed safely.
+- Authenticated source reconstruction (#54), Gemini current-page routing (#57), prompt-fill fallback (#59), and stable JSON completion (#60) were production-verified.
+- Manual Gemini operator E2E succeeded after Browser Agent stabilization.
+- Direct-AIOS runbook migration PR #17 removed the unreliable scheduled RDP/launcher/browser chain from the mandatory execution path.
 
-## Production execution
+## Current architecture
 
-- ChatGPT Automation is the nightly clock/trigger only; it writes the fixed local trigger file through Remote Desktop Commander and performs no Dream source read or canonical mutation.
-- Dedicated execution entrypoint: `GK-studio-JP/ai-os-runtime-browser-worker/nightly_dream_runner.py`; the generic Browser Worker route remains separate.
-- Dream coordination writes are performed by the dedicated runner through Browser Agent. Gemini performs salience triage and deep synthesis.
-- Canonical execution contract: `projects/aios-nightly-dream/AUTOMATION_RUNBOOK.md`.
-- Timezone: `Asia/Tokyo`.
-- Nominal schedule: nightly at 02:00 with flexible scheduling.
-- Settling delay: 3600 seconds.
-- Bootstrap watermark: `2026-10-02T00:00:00+09:00`.
-- Permanent production serialization uses `GK-studio-JP/ai-bulletin-board#52`. Each Dream Run Issue is canonical cycle state; an identical/incomplete cycle is resumed rather than duplicated.
-- The watermark advances only after a canonical Dream cycle state plus `ai-bb:v1` RESULT.
-- Deferred candidates remain Dream Run state and are retried later; they are not long-term Memory.
-- If Gemini triage is unavailable, the candidate is deferred. ChatGPT must not replace Gemini's salience role.
-- Global Memory publication requires the deterministic Phase 3 gate and branch + PR.
+- Work Scheduled Task is the recurring entrypoint.
+- AIOS uses structured GitHub/Supabase integrations for source collection, coordination, canonical writes, and RAG verification.
+- Gemini remains the independent semantic evaluator for salience triage and deep synthesis.
+- Deterministic prefiltering runs before any browser start.
+- Browser/Gemini starts only when at least one completed, verified candidate requires semantic evaluation.
+- One Gemini current-page session is reused for all triage calls and deep synthesis in that cycle.
+- Gemini failure defers affected candidates; GPT does not replace Gemini's salience role.
+- Browser Agent is fallback evaluator transport only. It is no longer the production orchestration/mutation transport.
 
 ## Canonical boundaries
 
@@ -44,20 +45,23 @@ Phase 5 — Hardening.
 - Search/vector data: rebuildable projection only.
 - Chat/model memory is never authoritative Dream state.
 
-## Production tracking
+## Existing evaluator implementation
 
-Phase 4 implementation task: `GK-studio-JP/ai-bulletin-board#49` — completed.
+- `GK-studio-JP/ai-os-runtime-browser-worker/ai_os_browser_worker/dream_triage.py`
+- `GK-studio-JP/ai-os-runtime-browser-worker/dream_triage_runner.py`
+- `GK-studio-JP/ai-os-runtime-browser-worker/test_dream_triage.py`
 
-Production checkpoints:
+The evaluator code already validates source fingerprints/version, recomputes the five-dimension weighted score, and fails closed. Existing current-page reuse is production-verified.
 
-- First production cycle: `GK-studio-JP/ai-bulletin-board#53` — completed with canonical cycle state and RESULT.
-- Authenticated source reconstruction: `#54` — completed.
-- Gemini current-page routing: `#57` — completed.
-- Browser Agent prompt-fill fallback: `#59` — completed.
-- Stable Gemini JSON completion detection: `#60` — completed.
-- Permanent production control: `GK-studio-JP/ai-bulletin-board#52` — intentionally open and reusable.
-- ChatGPT Automation: 02:00 production schedule is currently disabled pending a successful scheduled one-shot E2E of the dedicated Gemini runner path.
+The legacy `nightly_dream_runner.py` still starts Browser Agent before prefiltering and performs canonical GitHub operations through the browser. It is not the desired Work/Direct-AIOS production architecture and must not be treated as the new orchestrator.
 
-## Next action
+## Next acceptance steps
 
-Finish Phase 4 revalidation first: deploy the local trigger bridge and self-sourcing dedicated Gemini runner, run a real scheduled one-shot where ChatGPT only writes `tasks/aios-nightly-dream.trigger`, verify canonical CLAIM → Dream Run → cycle state/RESULT → RELEASE, and only then restore the daily 02:00 schedule. Resume Phase 5 hardening after that acceptance passes.
+1. Verify one fixed eligible triage capsule through the browser available to a scheduled Work run and unauthenticated Gemini Web.
+2. Require a schema-valid `aios-dream-triage-result:v1` and confirm AIOS recomputation yields the expected routing.
+3. Verify a zero-eligible dry run performs no Gemini/browser startup.
+4. Verify one eligible multi-candidate dry run uses one Gemini session/current page, not one browser start per candidate.
+5. Run a no-publish Dream dry run through collection -> prefilter -> Gemini -> report normalization.
+6. Only after those pass, run the publish/index/retrieval portion and restore the production cadence.
+
+Do not revive the old Scheduled Chat -> RDP/script -> Browser Agent launcher path.

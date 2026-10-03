@@ -8,25 +8,27 @@ Canonical task: `GK-studio-JP/ai-bulletin-board#66`
 
 ## Purpose
 
-At the end of each day, collect the day's canonical AIOS work across tasks, classify durable knowledge by AIOS storage boundary, publish it to the correct canonical source, refresh the RAG projection/index, verify retrieval, and leave a resumable canonical cycle result for the next run.
+At the end of each day, collect the day's canonical AIOS work across tasks, evaluate durable knowledge after the settling window, publish only validated knowledge to the correct canonical source, refresh the RAG projection/index, verify retrieval, and leave a resumable canonical cycle result for the next run.
 
 ## Execution model
 
-The scheduled ChatGPT turn is the recurring AIOS entrypoint. On every run it reads task #66 plus this runbook and `DREAM_CONTRACT.md`, then executes the cycle directly through connected AIOS integrations.
+The scheduled Work/ChatGPT turn is the recurring AIOS entrypoint. On every run it reads task #66 plus this runbook and `DREAM_CONTRACT.md`, then executes the cycle through connected AIOS integrations.
 
-Preferred integrations:
+AIOS is the executor and canonical authority boundary:
 
-- GitHub for canonical task history, project repositories, Global Memory source, branches, PRs, and Dream cycle state.
-- Supabase for RAG/projection state and retrieval verification.
-- Other connected structured APIs only when their canonical operational state is required.
+- GitHub: canonical task history, project repositories, Global Memory source, branches/PRs, Dream cycle state.
+- Supabase: rebuildable RAG/projection state and retrieval verification.
+- Other connected structured APIs: only when required for canonical operational state.
 
-Browser Agent, Remote Desktop Commander, Gemini, shell launchers, and dedicated browser runners are not prerequisites. Use Browser Agent only when a concrete required operation cannot be completed reliably through a structured integration.
+Gemini Web is the independent semantic evaluator. It does not own scheduling, coordination, GitHub/Supabase mutation, Memory publication, or RAG indexing.
+
+Browser execution is evaluator transport only. Do not use Browser Agent, Remote Desktop, shell launchers, or a dedicated browser runner to orchestrate the normal Dream cycle when structured integrations can perform the operation directly.
 
 ## Schedule
 
 Production target is daily at 02:00 Asia/Tokyo with a 3600-second settle delay.
 
-During acceptance, do not wait for the daily schedule. Run the cycle directly from an interactive ChatGPT turn and use near-term one-shot scheduled runs only to validate unattended dispatch. After acceptance, restore the normal daily schedule.
+During acceptance, do not wait for the daily schedule. Use near-term one-shot Work scheduled runs for unattended dispatch/evaluator verification. Restore the production cadence only after one full dry-run boundary succeeds.
 
 ## Window and watermark
 
@@ -54,36 +56,70 @@ Read `ai-bulletin-board` through authenticated GitHub access. For tasks changed 
 
 Exclude Dream control/cycle coordination from knowledge candidates. Fail closed on incomplete history or malformed canonical evidence.
 
-### 2. Classify durable knowledge
+### 2. Deterministic prefilter
 
-Each candidate is classified into one destination:
+Build the existing `aios-dream-triage-capsule:v1` for each candidate and apply deterministic gates before any browser is started:
 
-- `global`: reusable across projects — AIOS architecture, shared tools, infrastructure facts, reusable workflows, troubleshooting, conventions, or cross-project lessons.
-- `project`: project-specific requirements, decisions, designs, progress, deliverables, and domain knowledge.
-- `event_only`: task ownership/progress/result facts that belong only in the bulletin-board journal.
+- `history_unsafe` -> `skip`;
+- incomplete/open/claimed work -> `defer`;
+- completed work without verification evidence -> `defer`;
+- a prior triage result may be reused only when source fingerprint, triage version, and relevant policy version are unchanged.
 
-Project-specific content must not be copied into Global Memory.
+If no candidate remains eligible for semantic evaluation, complete the evaluation stage without starting Gemini or Chromium.
 
-### 3. Reconcile
+### 3. Gemini salience evaluation
+
+For each eligible completed/verified candidate, use unauthenticated Gemini Web as the independent evaluator.
+
+Runtime rules:
+
+- start evaluator browser transport lazily only when at least one eligible candidate exists;
+- start at most one Gemini browser session per Dream cycle;
+- reuse the same current page for all triage calls and any later deep synthesis;
+- avoid `newPage` / `switchPage` when a usable current page exists;
+- Gemini receives only bounded canonical capsules/context and has no canonical write authority;
+- Gemini returns the five dimensions: `operational_impact`, `reuse_scope`, `novelty`, `recurrence`, `evidence_strength`;
+- AIOS validates schema/fingerprint/version and recomputes salience deterministically;
+- routing thresholds remain: `<0.35 skip`, `0.35..<0.65 defer`, `>=0.65 deep`;
+- if Gemini is unavailable or malformed after bounded retry, mark the candidate `defer` with `gemini_unavailable`; do not substitute GPT/ChatGPT salience scoring.
+
+Prefer the browser transport already available to the scheduled Work run when it can return the required schema-valid Gemini result. The existing Browser Agent current-page evaluator path remains a fallback transport, not the normal Dream orchestrator.
+
+### 4. Gemini deep synthesis and storage classification
+
+Only `deep` candidates plus eligible deferred carryover enter deep synthesis. Reuse the same Gemini session when it is already open.
+
+Deep synthesis must:
+
+- reconstruct final state across tasks and discard superseded intermediate conclusions;
+- reconcile against relevant existing Global/Project Memory;
+- emit only `promote|noop|defer|reject|supersede`;
+- classify each proposal as `global|project|event_only`;
+- bind promote/supersede to canonical evidence;
+- require at least three independent source tasks for a recurring promoted pattern unless stronger authoritative evidence establishes it directly;
+- avoid psychological inference.
+
+The Dream Report remains non-authoritative. Gemini output never directly authorizes a write.
+
+### 5. Reconcile and deterministic publish gate
 
 Before writing:
 
 1. search the relevant RAG/projection for duplicates, updates, conflicts, and superseded knowledge;
-2. page into the canonical GitHub source when exact current state matters;
+2. page into canonical GitHub source when exact state matters;
 3. reject secrets, credentials, cookies, tokens, transient browser state, unsupported inference, and unresolved contradictions;
-4. prefer `noop` or `supersede` over duplicate knowledge.
+4. prefer `noop` or `supersede` over duplicate knowledge;
+5. pass the deterministic repository-specific publish gate.
 
-### 4. Publish canonical source first
-
-Global knowledge goes to `GK-studio-JP/ai-os-memory` using branch + PR. Project knowledge goes to the relevant project's canonical repository using its branch/PR authority. Event-only findings remain on `ai-bulletin-board`.
+Global knowledge targets `GK-studio-JP/ai-os-memory` using branch + PR. Project knowledge targets the relevant project canonical repository. Event-only findings remain on `ai-bulletin-board`.
 
 Supabase is a rebuildable projection, never the canonical source.
 
-### 5. Reindex and verify
+### 6. Reindex and verify
 
 After a canonical merge:
 
-1. verify the automatic main-push exact/FTS projection refresh;
+1. verify automatic main-push exact/FTS projection refresh;
 2. verify exact/FTS retrieval in Supabase;
 3. run the approved vector rebuild path when changed knowledge must be semantically searchable;
 4. verify a paraphrased/semantic lookup after vectorization;
@@ -91,11 +127,11 @@ After a canonical merge:
 
 Use precise status language: Global Memory registered, FTS indexed, Vectorized, Hybrid verified.
 
-### 6. Persist cycle result
+### 7. Persist cycle result
 
-Record `aios-dream-cycle:v1` with the cycle/window, tasks scanned, classification counts, decisions, canonical PRs/commits, index verification, and deferred items.
+Record `aios-dream-cycle:v1` with the cycle/window, tasks scanned, triage counts, proposal decisions, canonical PRs/commits, evaluator status, index verification, and deferred items.
 
-On complete success, append canonical RESULT, close the Dream Run, and RELEASE #52. A no-new-knowledge cycle may still succeed if source collection and index state are valid.
+On complete success, append canonical RESULT, close the Dream Run, and RELEASE #52. A no-new-knowledge cycle may still succeed if source collection and required index state are valid.
 
 ## Failure/retry
 
@@ -108,18 +144,22 @@ On partial failure:
 - RELEASE #52 when safe;
 - resume the same cycle next time.
 
+A Gemini transport failure is normally a candidate-level defer, not a reason to replace the evaluator with GPT.
+
 ## Scheduled task prompt
 
-> Use AIOS to read and execute `GK-studio-JP/ai-bulletin-board#66`. Read the current Nightly Dream runbook and contract at run time. Execute through connected structured integrations, preferring GitHub and Supabase. Browser Agent, Remote Desktop, Gemini, shell launchers, and dedicated browser runners are optional fallbacks only. Preserve resumable canonical state on partial failure.
+> Use AIOS to read and execute `GK-studio-JP/ai-bulletin-board#66`. Read the current Nightly Dream runbook and contract at run time. Use GitHub/Supabase structured integrations for collection, coordination, canonical writes, and retrieval verification. Apply deterministic prefiltering before browser work. For eligible completed/verified candidates, use unauthenticated Gemini Web as the independent semantic evaluator; AIOS must recompute the score and must not substitute GPT salience scoring if Gemini is unavailable. Do not start a browser when there are no eligible Gemini candidates. Reuse one Gemini current-page session for triage and deep synthesis when needed. Preserve resumable canonical state on partial failure.
 
 ## Success invariant
 
 ```text
 daytime canonical work
-  -> scheduled GPT AIOS entrypoint
+  -> scheduled Work / AIOS entrypoint
   -> authenticated structured collection
-  -> global/project/event-only classification
-  -> canonical source write
+  -> deterministic prefilter
+  -> lazy Gemini independent evaluation
+  -> AIOS deterministic routing + publish gate
+  -> canonical Global/Project source
   -> RAG reindex/vectorization
   -> exact + semantic retrieval verification
   -> canonical cycle result
