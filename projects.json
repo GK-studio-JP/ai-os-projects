@@ -130,6 +130,36 @@
         "path:docs/ROADMAP.md",
         "path:docs/checkpoints/GS30_SAVE_CHECKPOINT_20261003.md"
       ]
+    },
+    {
+      "schema": "ai-os-project:v2",
+      "project_id": "story-maker-mobile",
+      "name": "Story Maker Mobile",
+      "canonical_repository": "GK-studio-JP/story-maker-mobile",
+      "repositories": [
+        "GK-studio-JP/story-maker-mobile"
+      ],
+      "root_path": ".",
+      "process": "PROC-STORY",
+      "status": "active",
+      "refs": [
+        {
+          "type": "current_state",
+          "path": "docs/HANDOFF.md"
+        },
+        {
+          "type": "decisions",
+          "path": "docs/DECISIONS.md"
+        },
+        {
+          "type": "roadmap",
+          "path": "docs/ROADMAP.md"
+        },
+        {
+          "type": "project_policy",
+          "path": "docs/AIOS.md"
+        }
+      ]
     }
   ]
 }
