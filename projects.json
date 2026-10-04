@@ -170,6 +170,14 @@
         {
           "type": "project_policy",
           "path": "docs/AIOS.md"
+        },
+        {
+          "type": "story_method",
+          "path": "docs/STORY_METHOD.md"
+        },
+        {
+          "type": "data_model",
+          "path": "docs/DATA_MODEL.md"
         }
       ]
     }
