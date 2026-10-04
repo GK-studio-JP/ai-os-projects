@@ -125,10 +125,22 @@
       "process": "PROC-GAME",
       "status": "recovery",
       "refs": [
-        "path:docs/HANDOFF.md",
-        "path:docs/DECISIONS.md",
-        "path:docs/ROADMAP.md",
-        "path:docs/checkpoints/GS30_SAVE_CHECKPOINT_20261003.md"
+        {
+          "type": "current_state",
+          "path": "docs/HANDOFF.md"
+        },
+        {
+          "type": "decisions",
+          "path": "docs/DECISIONS.md"
+        },
+        {
+          "type": "roadmap",
+          "path": "docs/ROADMAP.md"
+        },
+        {
+          "type": "checkpoint",
+          "path": "docs/checkpoints/GS30_SAVE_CHECKPOINT_20261003.md"
+        }
       ]
     },
     {
