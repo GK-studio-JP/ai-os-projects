@@ -1,6 +1,6 @@
 # AIOS Nightly Dream — Decisions
 
-Status date: 2026-10-02
+Status date: 2026-10-06
 
 ## D-001 — Project canonicality
 
@@ -8,7 +8,7 @@ Project identity, design, roadmap, and handoff are canonical in `GK-studio-JP/ai
 
 ## D-002 — Nightly execution
 
-Use ChatGPT Automation only as the nightly clock/trigger. It writes one fixed local trigger file through Remote Desktop Commander and stops. Source acquisition, Dream mutations, synthesis, and outcome verification belong to the dedicated runner. Do not introduce a second timer daemon solely for Dream scheduling.
+The scheduled Work/ChatGPT turn executes one complete AIOS cycle through connected structured tools. It reads #66 and the current main runbook/contract at each invocation. It does not write a local trigger file or delegate cycle orchestration to Remote Desktop/Browser Agent. No second timer or additional scheduled task is introduced.
 
 ## D-003 — Gemini salience triage
 
@@ -16,7 +16,7 @@ Use the existing unauthenticated Gemini Web path in `ai-os-runtime-browser-worke
 
 ## D-004 — Deep synthesis
 
-Gemini performs cross-task reconstruction, evidence reconciliation, existing-memory comparison, consolidation, and pattern synthesis through the dedicated Nightly Dream runner. Chat history and model memory are not canonical inputs.
+Gemini is an independent semantic evaluator, invoked lazily after deterministic prefiltering and using one current page/session for triage and deep synthesis. Work/AIOS performs canonical collection, weighted routing, publish gates, mutation, and verification. Chat history and model memory are not canonical inputs.
 
 ## D-005 — Storage boundaries
 
@@ -40,8 +40,12 @@ Use source-history fingerprints and contract/triage versions to skip unchanged w
 
 ## D-010 — Separate execution path
 
-Nightly Dream uses a dedicated `nightly_dream_runner.py` entrypoint. The generic Browser Worker launch path remains separate and is not repurposed as the nightly scheduler path. Shared low-level Browser Agent/Gemini adapters may be reused, but routing, leases, cycle state, and failure handling remain Dream-specific.
+The legacy `nightly_dream_runner.py` and old scheduled-runtime launcher are not the scheduled orchestration path. Shared evaluator adapters may be reused; the Work/AIOS turn owns leases, canonical state, and failure handling. An existing authenticated Browser Agent UI may perform only a required approved vector-rebuild dispatch when structured dispatch is unavailable, following the runbook's relay-first readiness check.
 
 ## D-011 — GBrain adaptations
 
 Adopt Hot→Cold consolidation, cheap triage before deep synthesis, fingerprint caching, deferred processing, evidence provenance, write allow-lists, pattern evidence thresholds, no-new-evidence skips, dry-run support, cycle summaries, and cycle locking. Do not adopt psychological reflection or emotional weighting.
+
+## D-012 — Scheduled recovery and evidence
+
+Desktop Commander connectivity and Browser Agent relay readiness are independent. Test the Supabase relay and current command before declaring the browser unavailable. Persist raw triage dimensions and fingerprints using canonical 0.30/0.25/0.15/0.15/0.15 weights. Fresh query embeddings and explicit completed-cycle + RESULT records are required; stored document vectors and PROGRESS summaries are insufficient.

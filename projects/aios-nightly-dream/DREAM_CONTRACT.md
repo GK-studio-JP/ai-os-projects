@@ -1,7 +1,7 @@
 # AIOS Nightly Dream Contract v2
 
 Status: active production contract under Work/Direct-AIOS revalidation
-Status date: 2026-10-03
+Status date: 2026-10-06
 
 ## Purpose
 
@@ -14,7 +14,7 @@ Turn verified AIOS work experience into durable knowledge after a settling perio
 - GitHub is canonical for task history and repository mutation.
 - Supabase is the rebuildable RAG/projection and retrieval-verification layer.
 - Unauthenticated Gemini Web is the independent semantic evaluator for salience triage and deep synthesis.
-- Browser transport is opened lazily for evaluator calls only; it is not the canonical mutation transport.
+- Browser transport is opened lazily for evaluator calls; a required approved vector-rebuild dispatch may use an existing authenticated Browser Agent UI only when structured dispatch is unavailable. GitHub/Supabase remain the canonical mutation/verification transport for the rest of the cycle.
 - `ai-bulletin-board` is the canonical work-event journal.
 - `ai-os-memory` is canonical Global Memory.
 - Each project repository is canonical for project-specific knowledge.
@@ -60,7 +60,14 @@ Gemini returns the five dimensions:
 - `recurrence`
 - `evidence_strength`
 
-AIOS validates the result and recomputes the weighted score itself. Gemini's own score or decision is never authoritative.
+AIOS validates the result and recomputes the weighted score itself:
+
+```text
+salience = 0.30*operational_impact + 0.25*reuse_scope + 0.15*novelty
+         + 0.15*recurrence + 0.15*evidence_strength
+```
+
+Persist the five raw dimensions, capsule/source fingerprint, triage/policy versions, weighted score, route, and source references in the canonical Run. An equal-weight average is invalid. A cached score alone is insufficient for reuse. Gemini's own score or decision is never authoritative.
 
 Default routing:
 
@@ -129,13 +136,17 @@ A changed Global Memory candidate is complete only after:
 4. vector rebuild when semantic search is required;
 5. paraphrased/semantic retrieval verification after vectorization.
 
-Do not describe lexical-only retrieval as hybrid.
+Do not describe lexical-only retrieval as hybrid. A query embedding must be freshly generated from the actual paraphrased query; reusing a document's stored vector proves only a vector neighbor path, not the required query retrieval. The approved full-vector Actions path must fail closed when fresh-query validation fails and retain run/job score evidence.
+
+For the bounded approved rebuild UI exception, follow AUTOMATION_RUNBOOK.md. Browser Agent readiness is determined from the Supabase relay heartbeat/state and an actual command response, independently of Desktop Commander status. Confirm actual authentication and Actions completion, then continue the same cycle through structured tools.
 
 ## Coordination
 
 Permanent control is `ai-bulletin-board#52`. Only one live generation owns a cycle. Incomplete cycles are resumed before newer windows. Idempotency keys prevent duplicate coordination writes.
 
 ## Cycle result
+
+A successful watermark requires both an explicit `aios-dream-cycle:v1` record with `status=completed` and a canonical `ai-bb:v1` RESULT for the same cycle/window. PROGRESS text alone cannot complete the cycle. Verify Run closure and the owned #52 RELEASE after writing.
 
 Each completed cycle records tasks scanned, triage counts, proposal decisions, evaluator status, canonical commits/PRs, index status, retrieval verification, and deferred items.
 
