@@ -1,7 +1,7 @@
 # AIOS Nightly Dream
 
 Status: active
-Status date: 2026-10-03
+Status date: 2026-10-06
 Project ID: `aios-nightly-dream`
 Canonical repository: `GK-studio-JP/ai-os-projects`
 
@@ -65,3 +65,17 @@ The legacy `nightly_dream_runner.py` still starts Browser Agent before prefilter
 6. Only after those pass, run the publish/index/retrieval portion and restore the production cadence.
 
 Do not revive the old Scheduled Chat -> RDP/script -> Browser Agent launcher path.
+
+## 2026-10-06 scheduled failure repair
+
+Run #87 was resumed and completed at its original window `2026-10-03T15:55:47Z..2026-10-04T15:55:48Z`; RESULT and owned #52 RELEASE are persisted. The successful watermark is `2026-10-04T15:55:48Z`. Do not restart that completed Run.
+
+Root cause: Desktop Commander was offline, but the GCP Browser Agent relay was ready and responding. The scheduled prompt/runbook did not spell out the approved authenticated Actions UI exception. It therefore stopped before a rebuild that was actually executable. Always check relay state/heartbeat and actual commands before treating Desktop Commander status as a browser blocker.
+
+- Approved UI dispatch completed Actions run `37380098741`.
+- Memory PR #13 added fail-closed fresh-query semantic verification to the existing explicit rebuild path; PR CI `37380269358` passed.
+- Final Actions run `37380473521` at `ffe75bef757518f057d97bf614bfa7393bc1b974` succeeded: 134/134 vectors, actual new OpenAI query embedding (1536d), `policy.memory#002` vector score 0.451542, combined score 0.357206.
+- Canonical cycle/RESULT: #87 comments `6004130052` / `6004133880`; #52 RELEASE `6004137651`.
+- Historical Gemini scores were equal-normalized and raw dimensions/fingerprints were not persisted. Six candidates remain deferred: four incomplete and two with unverifiable prior evaluator evidence. Future evaluation must use canonical weights and persist raw dimensions/fingerprint/version. No new knowledge was promoted by the repair.
+
+For future scheduled turns, use the amended main runbook/contract: structured operations first, relay-first availability, only bounded approved rebuild dispatch UI fallback, evidence-preserving weighted triage, and explicit completed record + RESULT + Run closure + owned RELEASE. This interactive repair proves the actual recovery path; the next scheduled invocation still needs to demonstrate execution of the amended instructions unattended.
