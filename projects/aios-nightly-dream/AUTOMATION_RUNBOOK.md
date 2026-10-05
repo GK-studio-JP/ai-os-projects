@@ -2,7 +2,7 @@
 
 Status: active test/revalidation
 Contract: `aios-dream-automation:v2`
-Status date: 2026-10-03
+Status date: 2026-10-06
 Project ID: `aios-nightly-dream`
 Canonical task: `GK-studio-JP/ai-bulletin-board#66`
 
@@ -22,7 +22,7 @@ AIOS is the executor and canonical authority boundary:
 
 Gemini Web is the independent semantic evaluator. It does not own scheduling, coordination, GitHub/Supabase mutation, Memory publication, or RAG indexing.
 
-Browser execution is evaluator transport only. Do not use Browser Agent, Remote Desktop, shell launchers, or a dedicated browser runner to orchestrate the normal Dream cycle when structured integrations can perform the operation directly.
+Browser execution is normally evaluator transport; the narrow approved vector-rebuild dispatch fallback below is the only canonical operational UI exception. Do not use Browser Agent, Remote Desktop, shell launchers, or a dedicated browser runner to orchestrate the normal Dream cycle when structured integrations can perform the operation directly.
 
 ## Schedule
 
@@ -79,7 +79,8 @@ Runtime rules:
 - avoid `newPage` / `switchPage` when a usable current page exists;
 - Gemini receives only bounded canonical capsules/context and has no canonical write authority;
 - Gemini returns the five dimensions: `operational_impact`, `reuse_scope`, `novelty`, `recurrence`, `evidence_strength`;
-- AIOS validates schema/fingerprint/version and recomputes salience deterministically;
+- AIOS validates schema/fingerprint/version and recomputes salience deterministically using weights 0.30 operational_impact, 0.25 reuse_scope, 0.15 novelty, 0.15 recurrence, and 0.15 evidence_strength; never use an equal-weight average;
+- persist each bounded capsule fingerprint, triage/policy version, five raw dimensions, weighted score, route, and canonical source references in the Dream Run so another scheduled turn can validate reuse;
 - routing thresholds remain: `<0.35 skip`, `0.35..<0.65 defer`, `>=0.65 deep`;
 - if Gemini is unavailable or malformed after bounded retry, mark the candidate `defer` with `gemini_unavailable`; do not substitute GPT/ChatGPT salience scoring.
 
@@ -127,11 +128,25 @@ After a canonical merge:
 
 Use precise status language: Global Memory registered, FTS indexed, Vectorized, Hybrid verified.
 
+### Approved vector-rebuild dispatch fallback
+
+This exception applies only when a required full rebuild cannot be dispatched through the available structured GitHub tools. It does not authorize browser orchestration, browser-based canonical collection, or a new evaluator session.
+
+1. Read the current `GK-studio-JP/browser-agent/BROWSER_AGENT_INSTRUCTIONS.md` and relevant operations runbook.
+2. Check `public.browser_relay_sessions` through Supabase for the canonical namespace/agent given by those instructions. Read state, heartbeat timestamp/age, last_error, and ended_at. Desktop Commander online/offline is independent of this relay; an offline Desktop Commander device is not proof that the VM or Browser Agent is unavailable.
+3. With a fresh heartbeat and ready state, send a unique `listPages` command through `public.browser_relay_commands` and poll its result. If it returns "Browser is not started", send one bounded `start`, wait for done/error, and verify the result. Do not relaunch Chromium repeatedly. A historical last_error with a fresh heartbeat is not by itself a blocker; test a current command.
+4. Use the existing persistent authenticated GitHub browser only to open `ai-os-memory/actions/workflows/reindex-memory.yml`, select main, enable `write_projection=true`, and dispatch. Follow observe -> one action -> observe with current-generation refs. No login/credential workarounds; an actual authentication wall is a resumable blocker in an unattended run.
+5. Before dispatch, read structured Actions runs and reuse an already queued/running matching rebuild instead of submitting a duplicate. After clicking, verify the new workflow_dispatch run, head SHA, validate/full_vector_reindex jobs, and final conclusion through GitHub. Do not blindly repeat a possibly successful click.
+6. Continue the same Dream cycle through GitHub/Supabase. The current approved full rebuild includes `scripts/verify_memory_semantic.py`: it calls the embedding API for a fresh paraphrased query, validates 1536 dimensions, complete vector coverage/current source commit, and non-null vector scores for relevant retrieval. Capture the run/job URL and returned query/score evidence. A stored document embedding used as a query is not fresh-query evidence.
+7. If main changes during verification, verify/rebuild the current canonical state before success. If relay commands, authentication, rebuild, or retrieval actually fail after bounded recovery, preserve PROGRESS/HANDOFF and release only the owned #52 lock. Do not stop merely because structured workflow dispatch or Desktop Commander is unavailable.
+
+Zero Gemini-eligible candidates still means no evaluator browser/session. A separately required approved rebuild UI dispatch may use the existing persistent browser under this exception and must be reported separately from evaluator startup.
+
 ### 7. Persist cycle result
 
 Record `aios-dream-cycle:v1` with the cycle/window, tasks scanned, triage counts, proposal decisions, canonical PRs/commits, evaluator status, index verification, and deferred items.
 
-On complete success, append canonical RESULT, close the Dream Run, and RELEASE #52. A no-new-knowledge cycle may still succeed if source collection and required index state are valid.
+On complete success, first persist an explicit `aios-dream-cycle:v1` JSON record with `status=completed`; then append canonical `ai-bb:v1` RESULT for the same cycle/window, close the Dream Run, and RELEASE #52. A PROGRESS summary saying 'completed' is not a substitute for the cycle record. Re-read the persisted record/RESULT, closed Run, and own RELEASE to verify completion. A no-new-knowledge cycle may still succeed if source collection and required index state are valid.
 
 ## Failure/retry
 
@@ -144,7 +159,7 @@ On partial failure:
 - RELEASE #52 when safe;
 - resume the same cycle next time.
 
-A Gemini transport failure is normally a candidate-level defer, not a reason to replace the evaluator with GPT.
+A Gemini transport failure is normally a candidate-level defer, not a reason to replace the evaluator with GPT. A retry may reuse a prior evaluation only when the raw dimensions, source fingerprint, and triage/policy versions can actually be verified. Missing or malformed persisted evaluator evidence is `defer` with `gemini_unavailable` and a precise detail; do not infer dimensions from an old score, use equal weights, or open a second Gemini session for the same cycle.
 
 ## Scheduled task prompt
 
