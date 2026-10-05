@@ -28,7 +28,7 @@ Browser execution is normally evaluator transport; the narrow approved vector-re
 
 Production target is daily at 02:00 Asia/Tokyo with a 3600-second settle delay.
 
-During acceptance, do not wait for the daily schedule. Use near-term one-shot Work scheduled runs for unattended dispatch/evaluator verification. Restore the production cadence only after one full dry-run boundary succeeds.
+Keep the existing authorized daily task. Validate repairs interactively where possible and use its next existing invocation for unattended acceptance. Do not create a replacement, one-shot test, or additional task unless the user separately requests it.
 
 ## Window and watermark
 
@@ -163,7 +163,7 @@ A Gemini transport failure is normally a candidate-level defer, not a reason to 
 
 ## Scheduled task prompt
 
-> Use AIOS to read and execute `GK-studio-JP/ai-bulletin-board#66`. Read the current Nightly Dream runbook and contract at run time. Use GitHub/Supabase structured integrations for collection, coordination, canonical writes, and retrieval verification. Apply deterministic prefiltering before browser work. For eligible completed/verified candidates, use unauthenticated Gemini Web as the independent semantic evaluator; AIOS must recompute the score and must not substitute GPT salience scoring if Gemini is unavailable. Do not start a browser when there are no eligible Gemini candidates. Reuse one Gemini current-page session for triage and deep synthesis when needed. Preserve resumable canonical state on partial failure.
+> Use AIOS to read and execute `GK-studio-JP/ai-bulletin-board#66`. Read the current Nightly Dream runbook and contract at run time. Use GitHub/Supabase structured integrations for collection, coordination, canonical writes, and retrieval verification. Apply deterministic prefiltering before browser work. For eligible completed/verified candidates, use unauthenticated Gemini Web as the independent semantic evaluator; AIOS must recompute the score and must not substitute GPT salience scoring if Gemini is unavailable. Do not start a browser when there are no eligible Gemini candidates. Reuse one Gemini current-page session for triage and deep synthesis when needed. Preserve resumable canonical state on partial failure. Check Browser Agent through the Supabase relay independently of Desktop Commander; use the bounded existing-authenticated UI exception only for required approved rebuild dispatch. Persist raw weighted triage evidence, verify fresh query embeddings, and write an explicit completed-cycle record plus RESULT before watermark advancement.
 
 ## Success invariant
 
