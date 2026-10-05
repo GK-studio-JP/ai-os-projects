@@ -35,7 +35,7 @@ A personal Work scheduled task has been created successfully. The remaining acce
 - Browser/Gemini starts only when at least one completed, verified candidate requires semantic evaluation.
 - One Gemini current-page session is reused for all triage calls and deep synthesis in that cycle.
 - Gemini failure defers affected candidates; GPT does not replace Gemini's salience role.
-- Browser Agent is fallback evaluator transport only. It is no longer the production orchestration/mutation transport.
+- Browser Agent is evaluator fallback transport plus the narrow approved rebuild-dispatch UI exception in the runbook. It does not orchestrate the cycle or collect/mutate canonical task/Memory content.
 
 ## Canonical boundaries
 
@@ -55,16 +55,9 @@ The evaluator code already validates source fingerprints/version, recomputes the
 
 The legacy `nightly_dream_runner.py` still starts Browser Agent before prefiltering and performs canonical GitHub operations through the browser. It is not the desired Work/Direct-AIOS production architecture and must not be treated as the new orchestrator.
 
-## Next acceptance steps
+## Next unattended acceptance
 
-1. Verify one fixed eligible triage capsule through the browser available to a scheduled Work run and unauthenticated Gemini Web.
-2. Require a schema-valid `aios-dream-triage-result:v1` and confirm AIOS recomputation yields the expected routing.
-3. Verify a zero-eligible dry run performs no Gemini/browser startup.
-4. Verify one eligible multi-candidate dry run uses one Gemini session/current page, not one browser start per candidate.
-5. Run a no-publish Dream dry run through collection -> prefilter -> Gemini -> report normalization.
-6. Only after those pass, run the publish/index/retrieval portion and restore the production cadence.
-
-Do not revive the old Scheduled Chat -> RDP/script -> Browser Agent launcher path.
+The existing daily task remains the entrypoint. Its next invocation must read the amended current runbook/contract, start from the latest completed watermark, apply deterministic prefiltering and lazy Gemini evaluation, persist verifiable weighted triage evidence, and continue any required rebuild through relay-first approved dispatch. Check explicit cycle/RESULT, Run closure, and owned RELEASE at the end. Do not create an additional scheduled test task or revive the old Scheduled Chat -> RDP/script -> Browser Agent launcher path.
 
 ## 2026-10-06 scheduled failure repair
 
