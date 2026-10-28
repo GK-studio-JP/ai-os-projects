@@ -180,6 +180,36 @@
           "path": "docs/DATA_MODEL.md"
         }
       ]
+    },
+    {
+      "schema": "ai-os-project:v2",
+      "project_id": "dragon-contour-puzzle",
+      "name": "Dragon Contour Puzzle — Multi-frame contour fragment reconstruction",
+      "canonical_repository": "GK-studio-JP/pixel-boundary",
+      "repositories": [
+        "GK-studio-JP/pixel-boundary"
+      ],
+      "root_path": "experiments/dragon-contour-puzzle/v0.2/",
+      "process": "PROC-AIOS",
+      "status": "active",
+      "refs": [
+        {
+          "type": "current_state",
+          "path": "experiments/dragon-contour-puzzle/v0.2/README_JA.md"
+        },
+        {
+          "type": "design",
+          "path": "experiments/dragon-contour-puzzle/v0.2/DESIGN_NOTES.md"
+        },
+        {
+          "type": "test_report",
+          "path": "experiments/dragon-contour-puzzle/v0.2/TEST_REPORT_JA.md"
+        },
+        {
+          "type": "project",
+          "path": "experiments/dragon-contour-puzzle/v0.2/"
+        }
+      ]
     }
   ]
 }
