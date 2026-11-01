@@ -69,3 +69,13 @@ Project: `youtube-line-sticker-video-demo`
 5. Dropboxの`04_exports`へ`line_sticker_youtube_voicevox_v2.mp4`を新規版として保存。既存MP4は上書きしない。
 
 今回の実機調査は**アプリ導入、音声制作、Dropbox同期、v2 MP4出力の成功を含まない**。
+
+### 追補：WinGet導入試行と後処理（2026-11-01）
+
+- ユーザーのPC利用許可に基づき、既存のWinGetから無料CPU版 `HiroshibaKazuyuki.VOICEVOX.CPU` の一度限りの導入を試行。
+- Windows保守実行の結果は `maintenance_termination_unverified`（終了検証不可）で、インストール成功を確認できず。同一インストールを**再送していない**。
+- 事後調査では、この試行のWinGetプロセスが残留していた。対象パッケージのコマンドライン、元の親プロセス、子プロセス不在を一致検証し、**当該プロセスだけ**を終了。終了確認成功。
+- 最終調査ではVOICEVOXのアンインストール登録なし、関連WinGet/VOICEVOX/msiexecの実行プロセスなし。ローカル音声APIも応答せず。VOICEVOX本体の**導入は未完了**。
+- 調査資料（Dropbox）：`/ChatGPT-Transfer/YouTube-Production/projects/line-sticker-howto-20261101/05_qa/VOICEVOX_PC_READINESS_20261101.md`。クラウド保存後にファイルサイズ（2450 bytes）を確認。
+- 既存MP4、原稿、制作プログラム、AIOS Productionサービスは変更しないまま維持。VOICEVOXの本物の音声は未生成。
+- 次に必要なのはユーザー操作可能な正規インストール経路か、VOICEVOXに対応した専用の型付きPC制作経路。保守用PowerShell/RDCを日常の動画合成に使う設計にしない。
