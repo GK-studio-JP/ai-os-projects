@@ -52,3 +52,10 @@ Canonical project record: `GK-studio-JP/ai-os-projects/projects/youtube-line-sti
 2. 動画の目視最終確認。文字の視認性・テンポ・説明の正確性を確認。
 3. 必要なら実機画面のスクリーン録画、TTS/収録音声を加えて再レンダリング。
 4. LINE公式の現行ガイドと整合を確認してからYouTubeへ公開（この登録作業では公開しない）。
+
+## 2026-11-01: VOICEVOXナレーション連携（未完了）
+
+- VOICEVOXローカルエンジンへのAPI接続を前提とした11シーンの音声生成・自動同期・BGMミックスのソースを作成し、Dropbox `03_source/line_sticker_voicevox_pipeline_v1.zip` に保存。
+- 同じフォルダ群の `01_script/VOICEVOX_README_JA.md` と `05_qa/VOICEVOX_TEST_REPORT.md` に実行方法・テスト結果を記録。
+- 公式エンジン不在のため **VOICEVOX実音声生成と音声付きMP4は未完了**。11シーンのHTTPモック／無音WAVによるFFmpeg結合テストは通過。成果物は旧動画v1のまま維持。
+- 実装・制限・再開手順は [VOICEVOXナレーション実装記録](VOICEVOX_NARRATION.md) を正本とする。
