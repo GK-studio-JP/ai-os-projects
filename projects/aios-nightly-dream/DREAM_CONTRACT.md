@@ -13,6 +13,7 @@ Turn verified AIOS work experience into durable knowledge after a settling perio
 - AIOS/ChatGPT is the executor for canonical collection, coordination, publish, and retrieval verification.
 - GitHub is canonical for task history and repository mutation.
 - Supabase is the rebuildable RAG/projection and retrieval-verification layer.
+- The existing owner-private PC Memory Indexer is the primary projection writer. GitHub Actions push/PR jobs validate only; Actions projection writes are manually invoked only after the PC writer is stopped and the no-job/no-lock conditions are verified.
 - Unauthenticated Gemini Web is the independent semantic evaluator for salience triage and deep synthesis.
 - Browser transport is opened lazily for evaluator calls; a required approved vector-rebuild dispatch may use an existing authenticated Browser Agent UI only when structured dispatch is unavailable. GitHub/Supabase remain the canonical mutation/verification transport for the rest of the cycle.
 - `ai-bulletin-board` is the canonical work-event journal.
@@ -131,14 +132,14 @@ Canonical source is written first. Supabase is refreshed from canonical source.
 A changed Global Memory candidate is complete only after:
 
 1. canonical merge;
-2. exact/FTS projection refresh;
-3. exact retrieval verification;
-4. vector rebuild when semantic search is required;
-5. paraphrased/semantic retrieval verification after vectorization.
+2. confirm the clean PC Memory Indexer source matches current GitHub main and no Actions projection writer is pending/running;
+3. PC Memory Indexer exact/FTS projection refresh and exact retrieval verification;
+4. incremental missing-vector fill and fresh-query semantic retrieval verification through the same PC writer;
+5. independent Supabase check of source-commit equality, full embedding coverage and exact/semantic retrieval. If the current projection is already fully aligned, run the existing PC verification operation rather than a redundant rebuild.
 
 Do not describe lexical-only retrieval as hybrid. A query embedding must be freshly generated from the actual paraphrased query; reusing a document's stored vector proves only a vector neighbor path, not the required query retrieval. The approved full-vector Actions path must fail closed when fresh-query validation fails and retain run/job score evidence.
 
-For the bounded approved rebuild UI exception, follow AUTOMATION_RUNBOOK.md. Browser Agent readiness is determined from the Supabase relay heartbeat/state and an actual command response, independently of Desktop Commander status. Confirm actual authentication and Actions completion, then continue the same cycle through structured tools.
+For the exceptional **manual GitHub Actions writer**, follow AUTOMATION_RUNBOOK.md and `ai-os-memory/docs/LOCAL_MEMORY_INDEXER_MCP.md`: the PC writer must first be stopped and its execution gates disabled, no job/lock may remain, `confirm_pc_writer_stopped=true` must be supplied, and Actions billing/usage must be eligible. Never overlap writers or confuse validation-only runs with projection writes. When UI dispatch is truly required, Browser Agent readiness is determined from the Supabase relay heartbeat/state and an actual command response, independently of Desktop Commander status. Confirm actual authentication, job execution and Actions completion before resuming PC writes.
 
 ## Coordination
 

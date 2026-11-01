@@ -120,22 +120,26 @@ Supabase is a rebuildable projection, never the canonical source.
 
 After a canonical merge:
 
-1. verify automatic main-push exact/FTS projection refresh;
-2. verify exact/FTS retrieval in Supabase;
-3. run the approved vector rebuild path when changed knowledge must be semantically searchable;
-4. verify a paraphrased/semantic lookup after vectorization;
-5. do not call the cycle successful while a required projection/index remains stale.
+1. re-read the current `ai-os-memory` main SHA and existing indexer state;
+2. use the **existing owner-private PC Memory Indexer** as the primary projection writer, following `ai-os-memory/docs/LOCAL_MEMORY_INDEXER_MCP.md`. Confirm there is no queued/running GitHub Actions projection writer, that the PC source checkout is clean and matches current main, and that its `all` preflight passes. If the PC main is behind, use the existing authorized, clean fast-forward update route; do not reset dirty worktrees or bypass preflight;
+3. run `memory_indexer_reindex_all` only when refresh is needed, then poll the same run ID to completed/unlocked. This performs exact/FTS refresh, missing-vector generation and lexical/fresh-query semantic verification; when no refresh is needed, use `memory_indexer_verify` against the current projection;
+4. independently verify in Supabase that all global chunks match the **current** source SHA, every required embedding is present, and exact plus fresh-query semantic retrieval succeeds;
+5. do not call the cycle successful while source/index verification remains stale or the writer is running/failed. Never assume a GitHub Actions push validation updates the projection.
+
+The PC writer and GitHub Actions projection writer must never overlap. An Actions validation-only success does not mean an Actions reindex job ran. The existing PC bridge requires an authorized interactive Windows session; if unavailable, preserve a resumable HANDOFF rather than claiming automatic recovery.
 
 Use precise status language: Global Memory registered, FTS indexed, Vectorized, Hybrid verified.
 
-### Approved vector-rebuild dispatch fallback
+### Manual GitHub Actions writer fallback (only if PC writer is stopped)
 
-This exception applies only when a required full rebuild cannot be dispatched through the available structured GitHub tools. It does not authorize browser orchestration, browser-based canonical collection, or a new evaluator session.
+The normal writer is the existing PC Memory Indexer described above. Do **not** dispatch a GitHub Actions writer simply because a structured dispatch tool is unavailable. This fallback is permitted only when the PC writer is explicitly stopped, both PC write gates are disabled, no PC job/lock remains, and Actions usage/billing allows execution. Require the `confirm_pc_writer_stopped=true` workflow input, main branch, and exactly one of `write_incremental=true` or `write_projection=true`. Do not activate the PC writer again until the Actions writer finishes. If the GitHub Actions runner is blocked by billing/limits, do not retry dispatch in a loop; continue using the PC primary path if available.
+
+This exception applies only when a required manual Actions rebuild is authorized and cannot be dispatched through the available structured GitHub tools. It does not authorize browser orchestration, browser-based canonical collection, or a new evaluator session.
 
 1. Read the current `GK-studio-JP/browser-agent/BROWSER_AGENT_INSTRUCTIONS.md` and relevant operations runbook.
 2. Check `public.browser_relay_sessions` through Supabase for the canonical namespace/agent given by those instructions. Read state, heartbeat timestamp/age, last_error, and ended_at. Desktop Commander online/offline is independent of this relay; an offline Desktop Commander device is not proof that the VM or Browser Agent is unavailable.
 3. With a fresh heartbeat and ready state, send a unique `listPages` command through `public.browser_relay_commands` and poll its result. If it returns "Browser is not started", send one bounded `start`, wait for done/error, and verify the result. Do not relaunch Chromium repeatedly. A historical last_error with a fresh heartbeat is not by itself a blocker; test a current command.
-4. Use the existing persistent authenticated GitHub browser only to open `ai-os-memory/actions/workflows/reindex-memory.yml`, select main, enable `write_projection=true`, and dispatch. Follow observe -> one action -> observe with current-generation refs. No login/credential workarounds; an actual authentication wall is a resumable blocker in an unattended run.
+4. Use the existing persistent authenticated GitHub browser only to open `ai-os-memory/actions/workflows/reindex-memory.yml`, select main, enable `confirm_pc_writer_stopped=true` and the selected manual writer mode (`write_projection=true` for explicit full rebuild or `write_incremental=true` for incremental), and dispatch after the PC stop/no-lock checks. Follow observe -> one action -> observe with current-generation refs. No login/credential workarounds; an actual authentication wall is a resumable blocker in an unattended run.
 5. Before dispatch, read structured Actions runs and reuse an already queued/running matching rebuild instead of submitting a duplicate. After clicking, verify the new workflow_dispatch run, head SHA, validate/full_vector_reindex jobs, and final conclusion through GitHub. Do not blindly repeat a possibly successful click.
 6. Continue the same Dream cycle through GitHub/Supabase. The current approved full rebuild includes `scripts/verify_memory_semantic.py`: it calls the embedding API for a fresh paraphrased query, validates 1536 dimensions, complete vector coverage/current source commit, and non-null vector scores for relevant retrieval. Capture the run/job URL and returned query/score evidence. A stored document embedding used as a query is not fresh-query evidence.
 7. If main changes during verification, verify/rebuild the current canonical state before success. If relay commands, authentication, rebuild, or retrieval actually fail after bounded recovery, preserve PROGRESS/HANDOFF and release only the owned #52 lock. Do not stop merely because structured workflow dispatch or Desktop Commander is unavailable.
@@ -163,7 +167,7 @@ A Gemini transport failure is normally a candidate-level defer, not a reason to 
 
 ## Scheduled task prompt
 
-> Use AIOS to read and execute `GK-studio-JP/ai-bulletin-board#66`. Read the current Nightly Dream runbook and contract at run time. Use GitHub/Supabase structured integrations for collection, coordination, canonical writes, and retrieval verification. Apply deterministic prefiltering before browser work. For eligible completed/verified candidates, use unauthenticated Gemini Web as the independent semantic evaluator; AIOS must recompute the score and must not substitute GPT salience scoring if Gemini is unavailable. Do not start a browser when there are no eligible Gemini candidates. Reuse one Gemini current-page session for triage and deep synthesis when needed. Preserve resumable canonical state on partial failure. Check Browser Agent through the Supabase relay independently of Desktop Commander; use the bounded existing-authenticated UI exception only for required approved rebuild dispatch. Persist raw weighted triage evidence, verify fresh query embeddings, and write an explicit completed-cycle record plus RESULT before watermark advancement.
+> Use AIOS to read and execute `GK-studio-JP/ai-bulletin-board#66`. Read the current Nightly Dream runbook and contract at run time. Use GitHub/Supabase structured integrations for collection, coordination, canonical writes, and retrieval verification. Use the existing PC Memory Indexer as primary projection writer; use GitHub Actions manual writer only after stopping PC writer and confirming eligibility. Apply deterministic prefiltering before browser work. For eligible completed/verified candidates, use unauthenticated Gemini Web as the independent semantic evaluator; AIOS must recompute the score and must not substitute GPT salience scoring if Gemini is unavailable. Do not start a browser when there are no eligible Gemini candidates. Reuse one Gemini current-page session for triage and deep synthesis when needed. Preserve resumable canonical state on partial failure. Check Browser Agent through the Supabase relay independently of Desktop Commander; use the bounded existing-authenticated UI exception only for required approved rebuild dispatch. Persist raw weighted triage evidence, verify fresh query embeddings, and write an explicit completed-cycle record plus RESULT before watermark advancement.
 
 ## Success invariant
 
