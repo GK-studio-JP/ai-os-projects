@@ -210,6 +210,40 @@
           "path": "experiments/dragon-contour-puzzle/v0.2/"
         }
       ]
+    },
+    {
+      "schema": "ai-os-project:v2",
+      "project_id": "youtube-line-sticker-video-demo",
+      "name": "YouTube動画制作デモ：LINEスタンプの作り方",
+      "canonical_repository": "GK-studio-JP/ai-os-projects",
+      "repositories": [
+        "GK-studio-JP/ai-os-projects"
+      ],
+      "root_path": "projects/youtube-line-sticker-video-demo/",
+      "process": "PROC-AIOS",
+      "status": "active",
+      "refs": [
+        {
+          "type": "current_state",
+          "path": "projects/youtube-line-sticker-video-demo/HANDOFF.md"
+        },
+        {
+          "type": "technical_runbook",
+          "path": "projects/youtube-line-sticker-video-demo/TECHNICAL_RUNBOOK.md"
+        },
+        {
+          "type": "test_report",
+          "path": "projects/youtube-line-sticker-video-demo/ARTIFACTS_AND_QA.md"
+        },
+        {
+          "type": "decisions",
+          "path": "projects/youtube-line-sticker-video-demo/DECISIONS.md"
+        },
+        {
+          "type": "project",
+          "path": "projects/youtube-line-sticker-video-demo/"
+        }
+      ]
     }
   ]
 }
