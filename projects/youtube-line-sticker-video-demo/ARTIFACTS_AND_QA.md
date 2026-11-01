@@ -13,7 +13,22 @@ Status: prototype technically verified; no publish claim.
 | `line_sticker_video_project.zip` | 379,225 | `94e1dbb9d25de80a24b042bd59a8ca84e36141d8f370764a9ba014670cea9d18` | **旧ZIP、日本語名文字化け** |
 | `line_sticker_video_project_utf8.zip` | 378,077 | `1abfaed977178a360539c659f36d96d2a892fdf10c374823ced8aea97f8b964b` | **推奨ソースアーカイブ、UTF-8名修正版** |
 
-これらのハッシュは同一のChatGPT会話のコンテナ内で計測。**GitHubに動画やZIPのバイト列は保存されていない**。再開時にSHAと格納先を検証すること。会話のsandboxリンクだけを永続保存先として扱わない。
+これらのハッシュは同一のChatGPT会話のコンテナ内で計測。**GitHubに動画やZIPのバイト列は保存されていない**。2026-11-01にDropbox新規プロジェクトフォルダへコピーし、Dropbox一覧からパスとサイズを検証した。保存元のSHA-256がDropboxへ送信したバイトと一致することの独立した再ダウンロード照合は未実施。
+
+## Dropbox保存・確認（2026-11-01）
+
+基点：`/ChatGPT-Transfer/YouTube-Production/projects/line-sticker-howto-20261101/`
+
+- `YOUTUBE_STORAGE_INDEX.md`: フォルダ目的と11ファイルのSHA-256台帳（3,396 bytes）。
+- `01_script/`: `script_and_storyboard.md`, `youtube_description.md`
+- `02_assets/`: `line_sticker_assets_utf8.zip`（PNG10枚、361,323 bytes、SHA-256 `da7ecd0c0d0acd7bc0bf20bb5cf6d79d459c95024470240c402abd981480ad80`）と `02_ありがとう.png`
+- `03_source/`: `line_sticker_video_project_utf8.zip`
+- `04_exports/`: `line_sticker_youtube_test.mp4`, `line_sticker_youtube_thumbnail.png`
+- `05_qa/`: `test_report.md`, `line_sticker_video_contact_sheet.png`
+- `90_archive/`: `line_sticker_video_project_legacy.zip` と `line_sticker_sticker_samples_legacy.zip`（**ファイル名文字化けの旧版**）
+- `00_inbox/`: 空。共通の `/ChatGPT-Transfer/YouTube-Production/_shared/` も空。
+- Dropboxでの検証：プロジェクト配下7フォルダ＋管理インデックス1件＋成果物11件（計19エントリ）。ファイルサイズと名前を保存元と照合し一致。
+- Dropbox APIから全ファイルを再取得したSHA比較、PC同期、YouTube公開については未検証。
 
 ## 動画の技術検査
 
