@@ -26,8 +26,18 @@ Canonical project record: `GK-studio-JP/ai-os-projects/projects/youtube-line-sti
 - ナレーション原稿は準備済みだが、**日本語読み上げ音声の生成・収録・同期は未実施**。現在のAACはBGMのみ。
 - LINE公式アプリの実画面録画・操作・審査申請は未実施。映像のスマホ画面は**独自の説明用イメージ**。
 - YouTubeへのアップロード・公開・収益化審査は未実施。
-- ZIP/MP4等のバイナリ成果物は当時のChatGPT会話成果物として存在するが、**GitHub/Dropbox等の永続保存をこの登録で実施したわけではない**。以下のARTIFACTSを照合して保存先を確定する必要あり。
+- ZIP/MP4等のバイナリは2026-11-01にDropboxへ保存し、11個の制作ファイルと管理インデックス（計12ファイル）の**ファイル名・サイズ・格納パス**をDropbox一覧で確認。クラウドから再ダウンロードしたバイト単位のSHA再照合・Windows端末同期の検証は未実施。詳細はARTIFACTSを参照。
 - スマホ単体でPython/FFmpegを実行したのではなく、ChatGPT側のPython実行環境で書き出してスマホへ渡す方式。
+
+## Dropbox素材保管（2026-11-01確認済み）
+
+- プロジェクト専用の保存先：`/ChatGPT-Transfer/YouTube-Production/projects/line-sticker-howto-20261101/`
+- `YOUTUBE_STORAGE_INDEX.md` に各フォルダの用途、相対ファイル名、保存元SHA-256、旧ZIPの注意事項を記録。
+- `01_script`: 台本・概要欄／`02_assets`: PNG10枚のUTF-8 ZIP＋確認用PNG／`03_source`: プロジェクトソースZIP。
+- `04_exports`: MP4・サムネイル／`05_qa`: テスト報告・11シーン画像／`90_archive`: 文字化けした旧ZIP2件。
+- `00_inbox` と共通素材用 `../../_shared` は新規素材の受け取り・次案件共用のため空のまま確保。
+- 既存の `/ChatGPT-Transfer/LINEスタンプ制作/` は変更なし。今回の保存は新規フォルダへのコピーのみで、元ファイルを削除・移動していない。
+- Dropboxのクラウド保存とローカルPC同期を混同しない。上記はDropboxクラウドの書込み・ファイル一覧で確認した範囲。
 
 ## 引継ぎ先
 
@@ -38,7 +48,7 @@ Canonical project record: `GK-studio-JP/ai-os-projects/projects/youtube-line-sti
 
 ## 次に行うこと
 
-1. 完成MP4とUTF-8修正版プロジェクトZIPを永続保存先へ配置し、SHA-256を再照合。必要ならコード本体も専用リポジトリに格納。
+1. Dropboxに保存済みのMP4とUTF-8修正版ZIPを再ダウンロードしてSHA-256を照合し、必要ならWindows側Dropbox同期も検証。コード本体のGitHub管理は任意。
 2. 動画の目視最終確認。文字の視認性・テンポ・説明の正確性を確認。
 3. 必要なら実機画面のスクリーン録画、TTS/収録音声を加えて再レンダリング。
 4. LINE公式の現行ガイドと整合を確認してからYouTubeへ公開（この登録作業では公開しない）。
