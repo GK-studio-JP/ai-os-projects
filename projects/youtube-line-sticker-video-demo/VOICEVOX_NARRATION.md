@@ -48,3 +48,24 @@ Project: `youtube-line-sticker-video-demo`
 - https://github.com/VOICEVOX/voicevox_engine
 - https://github.com/VOICEVOX/voicevox_core
 - https://www.zunko.jp/con_ongen_kiyaku.html
+
+## 2026-11-01 PC利用許可後の実機環境調査（追加）
+
+**状態：VOICEVOX導入・実音声生成は未完了。** Windows PCへの通常接続を確認し、使用できる構成と操作上の不足を実機で調査した。
+
+- AIOS Production MCP稼働（Windows、専用FFmpeg 9.0.2系あり）。PC Edge専用ブラウザ起動・VOICEVOX公式サイト `https://voicevox.hiroshiba.jp/` の表示に成功。公式サイト表示版は0.26.1。
+- Windows対象の標準環境：Python 3.12とwingetは存在。標準PATHから`ffmpeg`は見つからないが、AIOS Production MCP専用のFFmpeg実行ファイルは存在する。**専用環境での利用を別途検証すること**。
+- VOICEVOX起動中プロセス、通常のプログラムディレクトリのVOICEVOX名付きインストール、127.0.0.1:50021の`/speakers`応答は確認できず。`VOICEVOX_API_UNAVAILABLE`。
+- 実PCの`winget search --name VOICEVOX --source winget`で`HiroshibaKazuyuki.VOICEVOX.CPU`、版0.25.2が見つかった（検索時の配布候補、**導入実績ではない**）。VOICEVOX公式ページにはWindows/CPU/x64インストーラーがある。
+- PC Edge上の公式ダウンロード選択画面を観測したが、WindowsのDownloadsフォルダに新たなVOICEVOXインストーラーは確認できなかった。**ダウンロード完了・ソフトインストール済み・音声エンジン起動済みとは主張しない**。
+- 現行の許可済みPC接続はブラウザ操作・制作専用の型付き処理が中心。一般的なアプリのインストーラ実行や任意のPython/FFmpeg制作コマンドの実行APIは利用できない。保守専用PowerShellやRDCを通常の動画制作ジョブ中継に転用しない。
+
+### 次の実行条件
+
+1. 正規のVOICEVOX Windows CPU版を一度インストールし、実ユーザーのPCでVOICEVOXを起動する。商用利用時のクレジット/利用条件を最新の公式ページで確認。
+2. `GET http://127.0.0.1:50021/speakers`が同じWindows実行環境で応答することを確認。外部ネットワークにAPIを公開しない。
+3. Dropboxの元MP4と`line_sticker_voicevox_pipeline_v1.zip`を利用可能なローカルフォルダに置く。Dropboxクラウド保存をWindows同期完了と同一視しない。
+4. 同一マシンでPython 3.12とFFmpegの実行パスを解決し、`voicevox_pipeline.py --mode probe`、`--mode all`を実行。完成音声11件とMP4の存在・音量・デコード・尺を検証する。
+5. Dropboxの`04_exports`へ`line_sticker_youtube_voicevox_v2.mp4`を新規版として保存。既存MP4は上書きしない。
+
+今回の実機調査は**アプリ導入、音声制作、Dropbox同期、v2 MP4出力の成功を含まない**。
