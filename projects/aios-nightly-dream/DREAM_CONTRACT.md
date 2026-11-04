@@ -132,7 +132,7 @@ Canonical source is written first. Supabase is refreshed from canonical source.
 A changed Global Memory candidate is complete only after:
 
 1. canonical merge;
-2. confirm the clean PC Memory Indexer source matches current GitHub main and no Actions projection writer is pending/running;
+2. confirm the clean PC Memory Indexer source matches current GitHub main and no Actions projection writer is pending/running; a stale but clean checkout must be repaired through the authorized guarded fast-forward maintenance path in the same cycle, then revalidated. Do not stop solely because main is behind; refuse dirty, diverged, locked or competing-writer cases;
 3. PC Memory Indexer exact/FTS projection refresh and exact retrieval verification;
 4. incremental missing-vector fill and fresh-query semantic retrieval verification through the same PC writer;
 5. independent Supabase check of source-commit equality, full embedding coverage and exact/semantic retrieval. If the current projection is already fully aligned, run the existing PC verification operation rather than a redundant rebuild.
