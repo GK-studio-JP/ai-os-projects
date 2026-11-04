@@ -121,7 +121,7 @@ Supabase is a rebuildable projection, never the canonical source.
 After a canonical merge:
 
 1. re-read the current `ai-os-memory` main SHA and existing indexer state;
-2. use the **existing owner-private PC Memory Indexer** as the primary projection writer, following `ai-os-memory/docs/LOCAL_MEMORY_INDEXER_MCP.md`. Confirm there is no queued/running GitHub Actions projection writer, that the PC source checkout is clean and matches current main, and that its `all` preflight passes. If the PC main is behind, use the existing authorized, clean fast-forward update route; do not reset dirty worktrees or bypass preflight;
+2. use the **existing owner-private PC Memory Indexer** as the primary projection writer, following `ai-os-memory/docs/LOCAL_MEMORY_INDEXER_MCP.md`. Confirm there is no queued/running GitHub Actions projection writer, that the PC source checkout is clean and matches current main, and that its `all` preflight passes. If the PC main is behind, **repair it within the same scheduled cycle rather than stopping on the mismatch**: use the existing owner-authorized Maintenance DC fixed-purpose PowerShell maintenance route to check the approved origin, branch=main, clean worktree, absent indexer lock/job, and absence of competing Actions projection writer; fetch origin/main, verify fast-forward ancestry and exact current GitHub main SHA, perform `git merge --ff-only origin/main`, and verify clean HEAD equals GitHub main. Do not reset dirty worktrees, override an unknown lock, accept a diverged history, or bypass preflight. After repair, rerun `preflight(mode=all)` and continue the same cycle;
 3. run `memory_indexer_reindex_all` only when refresh is needed, then poll the same run ID to completed/unlocked. This performs exact/FTS refresh, missing-vector generation and lexical/fresh-query semantic verification; when no refresh is needed, use `memory_indexer_verify` against the current projection;
 4. independently verify in Supabase that all global chunks match the **current** source SHA, every required embedding is present, and exact plus fresh-query semantic retrieval succeeds;
 5. do not call the cycle successful while source/index verification remains stale or the writer is running/failed. Never assume a GitHub Actions push validation updates the projection.
@@ -151,6 +151,12 @@ Zero Gemini-eligible candidates still means no evaluator browser/session. A sepa
 Record `aios-dream-cycle:v1` with the cycle/window, tasks scanned, triage counts, proposal decisions, canonical PRs/commits, evaluator status, index verification, and deferred items.
 
 On complete success, first persist an explicit `aios-dream-cycle:v1` JSON record with `status=completed`; then append canonical `ai-bb:v1` RESULT for the same cycle/window, close the Dream Run, and RELEASE #52. A PROGRESS summary saying 'completed' is not a substitute for the cycle record. Re-read the persisted record/RESULT, closed Run, and own RELEASE to verify completion. A no-new-knowledge cycle may still succeed if source collection and required index state are valid.
+
+## Automatic recovery acceptance
+
+A clean but stale PC checkout is a **recoverable maintenance condition**, not a terminal Dream failure. The scheduled executor must attempt the authorized bounded fast-forward repair once per observed GitHub main SHA, confirm the maintenance request result before any retry, and continue through PC indexing and retrieval verification. Never treat a queued/dispatched maintenance command as success; inspect its exact request ID until a terminal result. If GitHub main advances during repair, re-read it and revalidate before writing the projection. Only a dirty/diverged checkout, unknown lock, unavailable maintenance route, competing writer, or failed verified fast-forward becomes a resumable HANDOFF. Do not silently substitute an Actions writer.
+
+This policy belongs to the existing Dream executor and PC maintenance route; it creates no new task, runner, relay, or separate scheduled trigger.
 
 ## Failure/retry
 
