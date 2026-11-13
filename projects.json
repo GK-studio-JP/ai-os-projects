@@ -244,6 +244,24 @@
           "path": "projects/youtube-line-sticker-video-demo/"
         }
       ]
+    },
+    {
+      "schema": "ai-os-project:v2",
+      "project_id": "guild-adventure-3d-browser",
+      "name": "ギルド冒険物語 3Dブラウザ版",
+      "canonical_repository": "GK-studio-JP/guild-adventure-3d-browser",
+      "repositories": [
+        "GK-studio-JP/guild-adventure-3d-browser"
+      ],
+      "root_path": ".",
+      "process": "PROC-GAME",
+      "status": "setup",
+      "refs": [
+        {
+          "type": "current_state",
+          "path": "README.md"
+        }
+      ]
     }
   ]
 }
