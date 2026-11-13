@@ -255,7 +255,7 @@
       ],
       "root_path": ".",
       "process": "PROC-GAME",
-      "status": "setup",
+      "status": "active",
       "refs": [
         {
           "type": "current_state",
